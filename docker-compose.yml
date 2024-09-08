@@ -1,0 +1,25 @@
+services:
+  microservice-data:
+    build: ./microservices/microservice-data
+    ports:
+      - "3001:3001"
+    networks:
+      - microservices-network
+
+  microservice-trade:
+    build: ./microservices/microservice-trade
+    ports:
+      - "3003:3003"
+    networks:
+      - microservices-network
+
+  microservice-customer:
+    build: ./microservices/microservice-customer
+    ports:
+      - "3004:3004"
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
