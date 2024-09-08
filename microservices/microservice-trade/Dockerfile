@@ -1,19 +1,19 @@
-# Dockerfile for microservice-trade
 FROM node:20-alpine
 
-# Set the working directory to /app/src where index.js is located
-RUN mkdir -p ./src
-WORKDIR ./src
+# Set the working directory
+WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package.json and package-lock.json
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install --production
 
 # Copy the rest of the application code
-COPY . .
+COPY src ./src
 
-# Expose the port that the application will use
+# Expose the port
 EXPOSE 3003
 
-# Specify the command to run the application
-CMD ["node", "index.js"]
+# Command to run the application
+CMD ["node", "src/index.js"]

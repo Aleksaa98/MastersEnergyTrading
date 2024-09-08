@@ -1,14 +1,19 @@
-# Dockerfile for microservice-data
 FROM node:20-alpine
 
-RUN mkdir -p ./src
-WORKDIR ./src
+# Set the working directory
+WORKDIR /app
 
+# Copy package.json and package-lock.json
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install --production
 
-COPY . .
+# Copy the rest of the application code
+COPY src ./src
 
+# Expose the port
 EXPOSE 3001
 
-CMD ["node", "index.js"]
+# Command to run the application
+CMD ["node", "src/index.js"]
