@@ -1,0 +1,31 @@
+services:
+  microservice-data:
+    build: ./microservices/microservice-data
+    volumes:
+      - ./microservices/microservice-data/src:/app/src
+    ports:
+      - "3001:3001"
+    networks:
+      - microservices-network
+
+  microservice-trade:
+    build: ./microservices/microservice-trade
+    volumes:
+      - ./microservices/microservice-trade/src:/app/src
+    ports:
+      - "3003:3003"
+    networks:
+      - microservices-network
+
+  microservice-customer:
+    build: ./microservices/microservice-customer
+    volumes:
+      - ./microservices/microservice-customer/src:/app/src
+    ports:
+      - "3004:3004"
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
