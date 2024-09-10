@@ -12,9 +12,8 @@ const batterySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    traderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    traderUsername: {
+        type: String,
         required: true
     },
     state: {
@@ -22,7 +21,7 @@ const batterySchema = new mongoose.Schema({
         enum: batteryStates,
         required: true
     },
-    type: {
+    tradingStrat: {
         type: String
     }
 }, {

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Enum for user types
-const userTypes = ['admin', 'customer'];
+const userTypes = ['admin', 'customer', 'blocked'];
 const walletStates = ['active', 'suspended', 'closed'];
 
 const userSchema = new mongoose.Schema({

@@ -31,10 +31,10 @@ exports.getBattery = async (req, res) => {
 
 // Create a new battery
 exports.createBattery = async (req, res) => {
-    const { capacity, stateOfCharge, traderId, tradingStrat, state } = req.body;
+    const { capacity, stateOfCharge, traderUsername, tradingStrat, state } = req.body;
 
     try {
-        const battery = await Battery.create({ capacity, stateOfCharge, traderId, tradingStrat, state });
+        const battery = await Battery.create({ capacity, stateOfCharge, traderUsername, tradingStrat, state });
         res.status(200).json(battery);
     } catch (err) {
         res.status(500).json({ error: err.message });
