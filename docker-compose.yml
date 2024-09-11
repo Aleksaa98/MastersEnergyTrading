@@ -26,10 +26,10 @@ services:
     networks:
       - microservices-network
 
-  microservice-customer:
-    build: ./microservices/microservice-customer
+  microservice-user:
+    build: ./microservices/microservice-user
     volumes:
-      - ./microservices/microservice-customer/src:/app/src
+      - ./microservices/microservice-user/src:/app/src
     ports:
       - "3004:3004"
     networks:
