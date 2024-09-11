@@ -1,5 +1,5 @@
 {
-  "name": "microservice-customer",
+  "name": "microservice-user",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
