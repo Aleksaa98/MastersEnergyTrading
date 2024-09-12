@@ -1,14 +1,15 @@
 const User = require('../models/user');
-
+const bcrypt = require('bcryptjs');
 // Create a new user
 exports.createUser = async (req, res) => {
     try {
         const {fullName,username,password,type} = req.body
 
+        const encryptedPassword = await bcrypt.hash(password,10);
         const user = await User.create({
             fullName,
             username,
-            password,
+            password: encryptedPassword,
             type,
             wallet: {
                 balance: 0,  
@@ -25,8 +26,40 @@ exports.createUser = async (req, res) => {
         } else {
             // General error
             console.error('Error details:', error);
-            res.status(500).json({ error: 'Error creating user' });
+            res.status(500).json({ error: error.message });
         }
+    }
+};
+
+const loginUser = async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        if (!username || !password) {
+            return res.status(400).json({ error: 'Username and password are required' });
+        }
+
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (passwordMatch) {
+            const responseData = {
+                user,
+                isAdmin: user.type === 'admin'
+            };
+
+            return res.status(200).json(responseData);
+        } else {
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
