@@ -43,11 +43,6 @@ const navigation = [
     title: "Forms",
     href: "/forms",
     icon: "bi bi-textarea-resize",
-  },
-  {
-    title: "Breadcrumbs",
-    href: "/breadcrumbs",
-    icon: "bi bi-link",
   }
 ];
 

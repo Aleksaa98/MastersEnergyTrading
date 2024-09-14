@@ -17,6 +17,7 @@ exports.createUser = async (req, res) => {
             }
         });
 
+        console.log("User " + user.username + " has succesfully registered");
         res.status(200).json(user)
     } catch (error) {
         if (error.code === 11000) {
@@ -28,38 +29,6 @@ exports.createUser = async (req, res) => {
             console.error('Error details:', error);
             res.status(500).json({ error: error.message });
         }
-    }
-};
-
-const loginUser = async (req, res) => {
-    const { username, password } = req.body;
-
-    try {
-        if (!username || !password) {
-            return res.status(400).json({ error: 'Username and password are required' });
-        }
-
-        const user = await User.findOne({ username });
-
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, user.password);
-
-        if (passwordMatch) {
-            const responseData = {
-                user,
-                isAdmin: user.type === 'admin'
-            };
-
-            return res.status(200).json(responseData);
-        } else {
-            return res.status(401).json({ error: 'Incorrect password' });
-        }
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -84,6 +53,7 @@ exports.getUserByUsername = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        console.log('GetUser was hit succesfully');
         res.status(200).json({ data: user });
     } catch (err) {
         res.status(500).json({ error: err.message });

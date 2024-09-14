@@ -14,21 +14,30 @@ import {
   Button,
 } from "reactstrap";
 import Logo from "./Logo";
-import { ReactComponent as LogoWhite } from "../assets/images/logos/materialprowhite.svg";
+import { ReactComponent as LogoWhite } from "../assets/images/logos/websitelogo.svg";
 import user1 from "../assets/images/users/user4.jpg";
+import { useDispatch } from "react-redux"; 
+import { useNavigate } from "react-router-dom";
+import { logout } from "../store/authSlice"; 
 
 const Header = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); 
+
   const toggle = () => setDropdownOpen((prevState) => !prevState);
-  const Handletoggle = () => {
-    setIsOpen(!isOpen);
-  };
+  const Handletoggle = () => setIsOpen(!isOpen);
   const showMobilemenu = () => {
     document.getElementById("sidebarArea").classList.toggle("showSidebar");
   };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login"); // Redirect to login after logout
+  };
+
   return (
     <Navbar color="primary" dark expand="md" className="fix-header">
       <div className="d-flex align-items-center">
@@ -36,11 +45,11 @@ const Header = () => {
           <Logo />
         </div>
         <NavbarBrand href="/">
-          <LogoWhite className=" d-lg-none" />
+          <LogoWhite className="d-lg-none" />
         </NavbarBrand>
         <Button
           color="primary"
-          className=" d-lg-none"
+          className="d-lg-none"
           onClick={() => showMobilemenu()}
         >
           <i className="bi bi-list"></i>
@@ -80,6 +89,18 @@ const Header = () => {
             </DropdownMenu>
           </UncontrolledDropdown>
         </Nav>
+        <div className="d-flex align-items-center">
+          <Link to="/login">
+            <Button color="primary" className="me-2">
+              Login
+            </Button>
+          </Link>
+          <Link to="/register">
+            <Button color="secondary">
+              Register
+            </Button>
+          </Link>
+        </div>
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
           <DropdownToggle color="transparent">
             <img
@@ -87,7 +108,7 @@ const Header = () => {
               alt="profile"
               className="rounded-circle"
               width="30"
-            ></img>
+            />
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem header>Info</DropdownItem>
@@ -96,7 +117,7 @@ const Header = () => {
             <DropdownItem divider />
             <DropdownItem>My Balance</DropdownItem>
             <DropdownItem>Inbox</DropdownItem>
-            <DropdownItem>Logout</DropdownItem>
+            <DropdownItem onClick={handleLogout}>Logout</DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </Collapse>
