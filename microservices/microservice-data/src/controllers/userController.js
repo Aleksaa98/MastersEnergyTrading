@@ -1,14 +1,15 @@
 const User = require('../models/user');
-
+const bcrypt = require('bcryptjs');
 // Create a new user
 exports.createUser = async (req, res) => {
     try {
         const {fullName,username,password,type} = req.body
 
+        const encryptedPassword = await bcrypt.hash(password,10);
         const user = await User.create({
             fullName,
             username,
-            password,
+            password: encryptedPassword,
             type,
             wallet: {
                 balance: 0,  
@@ -16,6 +17,7 @@ exports.createUser = async (req, res) => {
             }
         });
 
+        console.log("User " + user.username + " has succesfully registered");
         res.status(200).json(user)
     } catch (error) {
         if (error.code === 11000) {
@@ -25,7 +27,7 @@ exports.createUser = async (req, res) => {
         } else {
             // General error
             console.error('Error details:', error);
-            res.status(500).json({ error: 'Error creating user' });
+            res.status(500).json({ error: error.message });
         }
     }
 };
@@ -51,6 +53,7 @@ exports.getUserByUsername = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        console.log('GetUser was hit succesfully');
         res.status(200).json({ data: user });
     } catch (err) {
         res.status(500).json({ error: err.message });

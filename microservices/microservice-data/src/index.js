@@ -8,7 +8,7 @@ const priceHistoryRoutes = require('./routes/priceHistoryRoutes')
 const transactionHistoryRoutes = require('./routes/transactionHistoryRoutes')
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT;
 
 // Middleware to parse JSON
 app.use(express.json());
