@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const transactionTypes = ['deposit', 'withdrawal', 'buy', 'sell'];
 
 const transactionSchema = new mongoose.Schema({
-    userUsername: {
+    userId: {
         type: String,
         required: true
     },

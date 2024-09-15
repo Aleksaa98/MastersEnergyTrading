@@ -16,6 +16,7 @@ const Tables = lazy(() => import("../views/ui/Tables"));
 const Forms = lazy(() => import("../views/ui/Forms"));
 const Login = lazy(() => import("../views/ui/Login"));
 const Register = lazy(() => import("../views/ui/Register"));
+const Profile = lazy(() => import("../views/ui/Profile"));
 
 /*****Routes******/
 
@@ -34,7 +35,8 @@ const ThemeRoutes = [
       { path: "/table", exact: true, element: <Tables /> },
       { path: "/forms", exact: true, element: <Forms /> },
       { path: "/login", exact:true, element: <Login />},
-      { path: "/register", exact:true, element: <Register />}
+      { path: "/register", exact:true, element: <Register />},
+      { path: "/profile", exact:true, element: <Profile />}
     ],
   },
 ];
