@@ -74,7 +74,11 @@ const authSlice = createSlice({
             .addCase(register.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
-            });
+            })
+            .addCase(updateProfile.fulfilled, (state, action) =>{
+                state.status = 'updated';
+                state.user = action.payload;
+            })
     }
 });
 

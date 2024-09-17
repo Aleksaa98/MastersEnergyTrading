@@ -3,8 +3,8 @@ const router = express.Router();
 const transactionController = require('../controllers/transactionController');
 const authenticate = require('../middleware/authenticate'); 
 
-router.post('/', transactionController.createTransaction);
+router.post('/',authenticate, transactionController.createTransaction);
 router.get('/', authenticate, transactionController.getAllTransactions);
-router.get('/user/:username', authenticate, transactionController.getUserTransactions);
+router.get('/user/:userId', authenticate, transactionController.getUserTransactions);
 
 module.exports = router;

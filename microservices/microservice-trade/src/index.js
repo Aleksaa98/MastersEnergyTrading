@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const batteryRoutes = require('./routes/batteryRoutes');
 const transactionRoutes = require('./routes/transactionsRoutes')
+const priceRoutes = require('./routes/priceRoutes');
 const app = express();
 
 require('dotenv').config();
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 
 app.use('/api/battery', batteryRoutes);
 app.use('/api/transactions',transactionRoutes);
+app.use('/api/price',priceRoutes);
 
 app.get('/', (req, res) => {
     res.send('Trade Service');
