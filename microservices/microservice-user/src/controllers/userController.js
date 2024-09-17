@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const DATA_SERVICE_URL = 'http://localhost:3001/api';
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'vqPw49ELrOZtHWSjCnC4DH';
 
 exports.createUser = async (req, res) => {
     try {
@@ -49,9 +49,7 @@ exports.loginUser = async (req, res) => {
             expiresIn: '1h' 
         });
 
-        res.cookie("token", token, {
-            httpOnly: true
-        })
+        res.cookie("token", token);
         res.status(200).json(user);
     } catch (error) {
         console.error('Error during login:', error);

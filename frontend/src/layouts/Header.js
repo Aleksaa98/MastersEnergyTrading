@@ -35,7 +35,11 @@ const Header = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login"); // Redirect to login after logout
+    navigate("/login"); 
+  };
+
+    const goToProfile = () => {
+    navigate("/profile"); 
   };
 
   return (
@@ -111,9 +115,7 @@ const Header = () => {
             />
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem header>Info</DropdownItem>
-            <DropdownItem>My Account</DropdownItem>
-            <DropdownItem>Edit Profile</DropdownItem>
+            <DropdownItem onClick={goToProfile}>My Account</DropdownItem>
             <DropdownItem divider />
             <DropdownItem>My Balance</DropdownItem>
             <DropdownItem>Inbox</DropdownItem>

@@ -31,11 +31,25 @@ exports.getBattery = async (req, res) => {
 
 // Create a new battery
 exports.createBattery = async (req, res) => {
-    const { capacity, stateOfCharge, traderUsername, tradingStrat, state } = req.body;
+    const { capacity, stateOfCharge, traderId, tradingStrat, state } = req.body;
 
     try {
-        const battery = await Battery.create({ capacity, stateOfCharge, traderUsername, tradingStrat, state });
+        const battery = await Battery.create({ capacity, stateOfCharge, traderId, tradingStrat, state });
         res.status(200).json(battery);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getBatteriesByUser = async (req, res) => {
+    const { traderId } = req.params;
+
+    try {
+        const batteries = await Battery.find({ traderId }).sort({ createdAt: 1 });
+        if (batteries.length === 0) {
+            return res.status(404).json({ error: 'No batteries found for this trader' });
+        }
+        res.status(200).json(batteries);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

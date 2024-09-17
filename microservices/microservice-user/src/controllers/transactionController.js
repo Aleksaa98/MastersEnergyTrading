@@ -1,14 +1,14 @@
 const axios = require('axios');
 
-const DATA_SERVICE_URL = 'http://microservice-data:3001/api';
+const DATA_SERVICE_URL = 'http://localhost:3001/api';
 const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.createTransaction = async (req, res) => {
     try {
-        const { userUsername, type, amount, timestamp, stratName } = req.body;
+        const { userId, type, amount, timestamp, stratName } = req.body;
 
         const response = await axios.post(`${DATA_SERVICE_URL}/transaction`, {
-            userUsername,
+            userId,
             type,
             amount,
             timestamp,
@@ -33,10 +33,10 @@ exports.getAllTransactions = async (req, res) => {
 };
 
 exports.getUserTransactions = async (req, res) => {
-    const { username } = req.params;
+    const { userId } = req.params;
 
     try {
-        const response = await axios.get(`${DATA_SERVICE_URL}/transaction/${username}`);
+        const response = await axios.get(`${DATA_SERVICE_URL}/transaction/${userId}`);
         res.status(200).json(response.data);
     } catch (error) {
         console.error('Error fetching user transactions:', error);

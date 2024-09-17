@@ -5,6 +5,6 @@ const transactionHistory = require('../controllers/transactionHistoryController'
 // Define routes
 router.post('/', transactionHistory.createTransaction);
 router.get('/', transactionHistory.getAllTransactions);
-router.get('/:userUsername', transactionHistory.getUserTransactions);
+router.get('/:userId', transactionHistory.getUserTransactions);
 
 module.exports = router;

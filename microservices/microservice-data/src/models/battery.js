@@ -12,7 +12,7 @@ const batterySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    traderUsername: {
+    traderId: {
         type: String,
         required: true
     },

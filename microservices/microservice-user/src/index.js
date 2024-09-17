@@ -7,7 +7,7 @@ const transactionRoutes = require('./routes/transactionRoutes');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3004;
 
 app.use(cors({
     origin: 'http://localhost:3000',

@@ -19,6 +19,23 @@ export const register = createAsyncThunk('auth/register', async (userData, thunk
     }
 });
 
+export const updateProfile = createAsyncThunk(
+    'user/updateProfile',
+    async ({ username, userData, token }, thunkAPI) => {
+      try {
+        console.log(token);
+        const response = await axios.patch(`/users/${username}`, userData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+              }
+        });
+        return response.data;
+      } catch (error) {
+        return thunkAPI.rejectWithValue(error.response.data);
+      }
+    }
+  );
+
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
@@ -57,7 +74,11 @@ const authSlice = createSlice({
             .addCase(register.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
-            });
+            })
+            .addCase(updateProfile.fulfilled, (state, action) =>{
+                state.status = 'updated';
+                state.user = action.payload;
+            })
     }
 });
 

@@ -3,10 +3,10 @@ const Transaction = require('../models/transactionHistory');
 // Create a new transaction
 exports.createTransaction = async (req, res) => {
     try {
-        const {userUsername,timestamp,type,amount,stratName} = req.body
+        const {userId,timestamp,type,amount,stratName} = req.body
 
         const transaction = await Transaction.create({
-            userUsername,
+            userId,
             type,
             amount,
             timestamp,
@@ -32,13 +32,13 @@ exports.getAllTransactions = async (req, res) => {
 
 exports.getUserTransactions = async (req, res) => {
     try {
-        const { userUsername } = req.params;
+        const { userId } = req.params;
 
-        if (!userUsername) {
+        if (!userId) {
             return res.status(400).json({ message: 'User Username is required' });
         }
         
-        const transactions = await Transaction.find({ userUsername }).sort({ timestamp: -1 });
+        const transactions = await Transaction.find({ userId }).sort({ timestamp: -1 });
         res.status(200).json(transactions);
     } catch (error) {
         console.error('Error fetching transactions:', error);
