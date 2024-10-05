@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../axiosConfig'; // Import axios configuration
+import { apiInstance } from '../../src/axiosConfig'; // Import axios configuration
 
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
     try {
-        const response = await axios.post('/user/login', userData);
+        const response = await apiInstance.post('/user/login', userData);
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response.data);
@@ -12,7 +12,7 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
 
 export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
     try {
-        const response = await axios.post('/user/register', userData);
+        const response = await apiInstance.post('/user/register', userData);
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.response.data);
@@ -24,7 +24,7 @@ export const updateProfile = createAsyncThunk(
     async ({ username, userData, token }, thunkAPI) => {
       try {
         console.log(token);
-        const response = await axios.patch(`/users/${username}`, userData, {
+        const response = await apiInstance.patch(`/users/${username}`, userData, {
             headers: {
                 'Authorization': `Bearer ${token}`
               }
