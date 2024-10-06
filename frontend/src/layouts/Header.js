@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux';
 import {
   Navbar,
   Collapse,
@@ -23,6 +24,7 @@ import { logout } from "../store/authSlice";
 const Header = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const user = useSelector((state) => state.auth.user);
 
   const dispatch = useDispatch();
   const navigate = useNavigate(); 
@@ -49,7 +51,7 @@ const Header = () => {
           <Logo />
         </div>
         <NavbarBrand href="/">
-          <LogoWhite className="d-lg-none" />
+          <LogoWhite className="d-lg-none hover-effect" />
         </NavbarBrand>
         <Button
           color="primary"
@@ -93,7 +95,8 @@ const Header = () => {
             </DropdownMenu>
           </UncontrolledDropdown>
         </Nav>
-        <div className="d-flex align-items-center">
+        {user === null && (
+          <div className="d-flex align-items-center">
           <Link to="/login">
             <Button color="primary" className="me-2">
               Login
@@ -105,6 +108,8 @@ const Header = () => {
             </Button>
           </Link>
         </div>
+        )}
+        {user !== null && (
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
           <DropdownToggle color="transparent">
             <img
@@ -122,6 +127,7 @@ const Header = () => {
             <DropdownItem onClick={handleLogout}>Logout</DropdownItem>
           </DropdownMenu>
         </Dropdown>
+        )}
       </Collapse>
     </Navbar>
   );

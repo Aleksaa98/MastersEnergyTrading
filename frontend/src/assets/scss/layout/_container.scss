@@ -38,3 +38,23 @@ table th {
 .table-borderless>:not(:first-child) {
   border-top-width: 0;
 }
+
+button:disabled,
+button[disabled]{
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+
+.captcha-container {
+  width: 100%;
+  max-width: 100%; /* Prevent it from exceeding the parent element's width */
+}
+
+.captcha-container .g-recaptcha {
+  /* Make sure the reCAPTCHA widget scales with the container */
+  width: 100% !important;
+  height: auto !important;
+  max-width: 300px; /* Optionally, set a max-width to prevent it from getting too large */
+}
+

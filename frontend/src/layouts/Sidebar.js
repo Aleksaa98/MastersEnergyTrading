@@ -1,13 +1,20 @@
 import { Button, Nav, NavItem } from "reactstrap";
 import { Link, useLocation } from "react-router-dom";
+import {useSelector} from "react-redux";
 import user1 from "../assets/images/users/user4.jpg";
 import probg from "../assets/images/bg/download.jpg";
+import guest from "../assets/images/users/guest.jpg";
 
 const navigation = [
   {
     title: "Dashboard",
     href: "/starter",
     icon: "bi bi-speedometer2",
+  },
+  {
+    title: "Battery",
+    href: "/battery",
+    icon: "bi bi-battery",
   },
   {
     title: "Alert",
@@ -47,6 +54,7 @@ const navigation = [
 ];
 
 const Sidebar = () => {
+  const user = useSelector((state) => state.auth.user);
   const showMobilemenu = () => {
     document.getElementById("sidebarArea").classList.toggle("showSidebar");
   };
@@ -60,7 +68,26 @@ const Sidebar = () => {
         style={{ background: `url(${probg}) no-repeat` }}
       >
         <div className="p-3 d-flex">
-          <img src={user1} alt="user" width="50" className="rounded-circle" />
+        {user !== null &&  
+               <Link to="/profile">
+               <img 
+                 src={user1} 
+                 alt="user" 
+                 width="50" 
+                 className="rounded-circle hover-effect" 
+               />
+             </Link>
+          }
+          {user === null &&  
+               <Link to="/login">
+               <img 
+                 src={guest} 
+                 alt="user" 
+                 width="50" 
+                 className="rounded-circle hover-effect" 
+               />
+             </Link>
+          }
           <Button
             color="white"
             className="ms-auto text-white d-lg-none"
@@ -69,7 +96,7 @@ const Sidebar = () => {
             <i className="bi bi-x"></i>
           </Button>
         </div>
-        <div className="bg-dark text-white p-2 opacity-75">Steave Rojer</div>
+        {user !== null &&  <div className="bg-dark text-white p-2 opacity-75">{user.fullName}</div>}
       </div>
       <div className="p-3 mt-2">
         <Nav vertical className="sidebarNav">
