@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
-import batteryReducer from './batterySlice'
-import userTransactionReducer from './userTransactionSlice'
+import batteryReducer from './batterySlice';
+import userTransactionReducer from './userTransactionSlice';
 import { persistStore, persistReducer } from 'redux-persist';
+import priceReducer from './pricesSlice';
 import storage from 'redux-persist/lib/storage'; 
 import { combineReducers } from 'redux';
 
@@ -13,6 +14,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  prices: priceReducer,
   transactions: userTransactionReducer,
   battery: batteryReducer
 });

@@ -8,6 +8,10 @@ const fetchPriceData = () => {
 
 fetchPriceData();
 
-cron.schedule('0 * * * *', () => {
-    fetchPriceData();
+// cron.schedule('0 * * * *', () => {
+//     fetchPriceData();
+// });
+
+cron.schedule('*/5 * * * *', () => {
+  fetchPriceData();
 });
