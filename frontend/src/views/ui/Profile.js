@@ -88,7 +88,7 @@ const ProfilePage = () => {
         return <div>Loading...</div>; 
       }
     return (
-
+        <div className="custom-view-wrapper">
         <Row>
           <Col md="8">
               <Card>
@@ -208,6 +208,7 @@ const ProfilePage = () => {
             </Card>
           </Col>
         </Row>
+        </div>
     );
 };
 

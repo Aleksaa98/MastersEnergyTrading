@@ -112,7 +112,7 @@ const Batteries = () => {
   }));
 
   return (
-    <div>
+    <div className="custom-view-wrapper">
       <h1>Your Batteries</h1>
       {userBatteries.length === 0 ? (
         <Card>
