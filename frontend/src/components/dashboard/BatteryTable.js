@@ -1,22 +1,44 @@
-import React from 'react';
-import { Card, CardBody, Button, CardTitle, CardSubtitle, Table,Badge  } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBatteryThreeQuarters,faBatteryFull, faPlus, faGear, faTrash, faBatteryEmpty, faBatteryQuarter } from "@fortawesome/free-solid-svg-icons";
+import React from "react";
+import { Card, CardBody, Button, CardTitle, CardSubtitle, Table, Badge } from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBatteryEmpty,
+  faBatteryQuarter,
+  faBatteryThreeQuarters,
+  faBatteryFull,
+  faPlus,
+  faGear,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { BATTERY_STATES } from "../../constants";
 
 const getBatteryIcon = (percentage) => {
   if (percentage < 25) {
     return <FontAwesomeIcon icon={faBatteryEmpty} className="text-danger" />;
-  } else if (percentage >= 25 && percentage < 50) {
+  }
+  if (percentage < 50) {
     return <FontAwesomeIcon icon={faBatteryQuarter} className="text-warning" />;
-  } else if (percentage >= 50 && percentage <= 75) {
+  }
+  if (percentage <= 75) {
     return <FontAwesomeIcon icon={faBatteryThreeQuarters} className="text-info" />;
-  } else {
-    return <FontAwesomeIcon icon={faBatteryFull} className="text-success" />;
+  }
+  return <FontAwesomeIcon icon={faBatteryFull} className="text-success" />;
+};
+
+const getBadgeColor = (state) => {
+  switch (state) {
+    case BATTERY_STATES.CHARGING:
+      return "success";
+    case BATTERY_STATES.BLOCKED:
+      return "danger";
+    case BATTERY_STATES.IDLE:
+      return "warning";
+    default:
+      return "secondary";
   }
 };
 
-const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete }) => { 
-
+const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete }) => {
   const handleEdit = (battery) => {
     if (onEdit) {
       onEdit(battery);
@@ -56,53 +78,43 @@ const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete }) => {
               </tr>
             </thead>
             <tbody>
-              {tableData.map((tdata, index) => (
-                <tr key={index} className="border-top">
-                  <td>
-                    <div className="d-flex align-items-center p-2">
-                      <td>
-                        <div>{getBatteryIcon(((tdata.stateOfCharge / tdata.capacity) * 100))}</div>
-                      </td>
-                      <div className="ms-2">
-                        <h6 className="mb-0">{tdata.capacity ? ((tdata.stateOfCharge / tdata.capacity) * 100).toFixed(1) : 'N/A'} %</h6>
+              {tableData.map(({ id, capacity, stateOfCharge, state, tradingStrat }) => {
+                const percentage = capacity ? (stateOfCharge / capacity) * 100 : 0;
+                return (
+                  <tr key={id} className="border-top">
+                    <td>
+                      <div className="d-flex align-items-center p-2">
+                        <div>{getBatteryIcon(percentage)}</div>
+                        <div className="ms-2">
+                          <h6 className="mb-0">{percentage.toFixed(1)} %</h6>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{tdata.capacity}</td>
-                  <td>{tdata.stateOfCharge}</td>
-                  <td>
-                  <div className="d-flex align-items-center">
-                      <Badge color={
-                        tdata.state === "charging" ? "success" :
-                        tdata.state === "blocked" ? "danger" :
-                        tdata.state === "idle" ? "warning" :
-                        "secondary"
-                      }>
-                        {tdata.state.charAt(0).toUpperCase() + tdata.state.slice(1)}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td>{tdata.tradingStrat}</td>
-                  <td>
-                    <Button 
-                      className="btn" 
-                      color="warning" 
-                      onClick={() => handleEdit(tdata)} // Pass the whole battery object
-                    >
-                      <FontAwesomeIcon icon={faGear} /> 
-                    </Button>
-                    
-                    <Button 
-                      className="btn" 
-                      color="danger" 
-                      onClick={() => handleDelete(tdata.id)}
-                    >
-                      <FontAwesomeIcon icon={faTrash} /> 
-                    </Button>
-                    
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td>{capacity}</td>
+                    <td>{stateOfCharge}</td>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <Badge color={getBadgeColor(state)}>
+                          {state.charAt(0).toUpperCase() + state.slice(1)}
+                        </Badge>
+                      </div>
+                    </td>
+                    <td>{tradingStrat}</td>
+                    <td>
+                      <Button
+                        className="btn"
+                        color="warning"
+                        onClick={() => handleEdit({ id, capacity, stateOfCharge, state, tradingStrat })}
+                      >
+                        <FontAwesomeIcon icon={faGear} />
+                      </Button>
+                      <Button className="btn" color="danger" onClick={() => handleDelete(id)}>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </Table>
         </CardBody>

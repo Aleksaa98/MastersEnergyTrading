@@ -1,107 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserBatteries, createBattery,updateBattery,deleteBattery } from '../../store/batterySlice';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import BatteryTable from '../../components/dashboard/BatteryTable';
-import { Card, Button, CardBody, CardTitle, CardSubtitle, Modal, ModalHeader, ModalBody, FormGroup, Label, Input } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserBatteries, createBattery, updateBattery, deleteBattery } from "../../store/batterySlice";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import BatteryTable from "../../components/dashboard/BatteryTable";
+import {
+  Card,
+  Button,
+  CardBody,
+  CardTitle,
+  CardSubtitle,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  FormGroup,
+  Label,
+  Input,
+} from "reactstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { BATTERY_STATES } from "../../constants";
+
+const initialBatteryData = {
+  capacity: "",
+  stateOfCharge: "",
+  state: BATTERY_STATES.IDLE,
+  tradingStrat: "",
+};
 
 const Batteries = () => {
-  const token = Cookies.get('token');
+  const token = Cookies.get("token");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
   const { userBatteries, loading } = useSelector((state) => state.battery);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedBatteryId, setSelectedBatteryId] = useState("");
-  const [refresh, setRefresh] = useState(false);
-  const [batteryData, setBatteryData] = useState({
-    capacity: '',
-    stateOfCharge: '',
-    traderId: user ? user._id : '',
-    state: 'idle',
-    tradingStrat: ''
-  });
+  const [batteryData, setBatteryData] = useState(initialBatteryData);
 
-  useEffect(() => {
+  const refreshBatteries = useCallback(() => {
     if (user) {
       dispatch(fetchUserBatteries({ userId: user._id, token }));
     } else {
-      navigate('/login');
+      navigate("/login");
     }
-  }, [dispatch, user, token, navigate,refresh]);
+  }, [dispatch, user, token, navigate]);
+
+  useEffect(() => {
+    refreshBatteries();
+  }, [refreshBatteries]);
 
   const handleInputChange = (e) => {
-    setBatteryData({
-      ...batteryData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleUpdateBattery = async () => {
-    toggleModal();
-    dispatch(updateBattery({ batteryId: selectedBatteryId, updateData: batteryData,token: token }));
-    dispatch(fetchUserBatteries({ userId: user._id, token }));
-    setIsEditing(false);
-    setSelectedBatteryId("");
+    const { name, value } = e.target;
+    setBatteryData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };
 
-  const handleAddBattery = async () => {
-    // Perform the add action
-    dispatch(createBattery({ batteryData: { ...batteryData, ownerId: user._id }, token }));
-    dispatch(fetchUserBatteries({ userId: user._id, token }));
-    toggleModal(); // Close the modal after adding
-    setRefresh(!refresh);
+  const handleAdd = () => {
+    setIsEditing(false);
+    setBatteryData(initialBatteryData);
+    toggleModal();
   };
 
   const handleEdit = (battery) => {
+    setIsEditing(true);
+    setSelectedBatteryId(battery.id);
     setBatteryData({
       capacity: battery.capacity,
       stateOfCharge: battery.stateOfCharge,
-      traderId: user ? user._id : '',
       state: battery.state,
       tradingStrat: battery.tradingStrat,
     });
-    setSelectedBatteryId(battery.id);
-    setIsEditing(true); // Set editing mode
-    toggleModal(); // Open modal after setting the state
+    toggleModal();
   };
 
-  const handleAdd = () => {
-    setBatteryData({
-      capacity: '',
-      stateOfCharge: '',
-      traderId: user ? user._id : '',
-      state: 'idle',
-      tradingStrat: ''
-    });
-    setIsEditing(false);
-    toggleModal();
-  }
-  
-  // Handle delete (for future implementation)
   const handleDelete = (batteryId) => {
-    dispatch(deleteBattery({ batteryId: batteryId, token: token }));
-    dispatch(fetchUserBatteries({ userId: user._id, token: token }));
-    setRefresh(!refresh);
+    dispatch(deleteBattery({ batteryId, token })).then(() => {
+      refreshBatteries();
+    });
+  };
+
+  const handleSubmit = () => {
+    const action = isEditing
+      ? updateBattery({ batteryId: selectedBatteryId, updateData: batteryData, token })
+      : createBattery({ batteryData: { ...batteryData, ownerId: user._id }, token });
+
+    dispatch(action).then(() => {
+      refreshBatteries();
+      toggleModal();
+    });
   };
 
   if (loading) {
     return <p>Loading batteries...</p>;
   }
 
-  if (userBatteries.length === 0) {
-    return (
-      <div>
-        <h1>Your Batteries</h1>
+  const tableData = userBatteries.map((battery) => ({
+    id: battery._id,
+    capacity: battery.capacity,
+    stateOfCharge: battery.stateOfCharge,
+    state: battery.state,
+    tradingStrat: battery.tradingStrat,
+  }));
+
+  return (
+    <div>
+      <h1>Your Batteries</h1>
+      {userBatteries.length === 0 ? (
         <Card>
           <CardBody>
             <div className="d-flex justify-content-between align-items-center">
@@ -117,9 +130,12 @@ const Batteries = () => {
             </div>
           </CardBody>
         </Card>
+      ) : (
+        <BatteryTable tableData={tableData} onEdit={handleEdit} onDelete={handleDelete} onAddBattery={handleAdd} />
+      )}
 
-        <Modal isOpen={modalOpen} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>Add New Battery</ModalHeader>
+      <Modal isOpen={modalOpen} toggle={toggleModal}>
+        <ModalHeader toggle={toggleModal}>{isEditing ? "Edit Battery" : "Add New Battery"}</ModalHeader>
         <ModalBody>
           <FormGroup>
             <Label for="capacity">Capacity</Label>
@@ -129,67 +145,7 @@ const Batteries = () => {
               id="capacity"
               value={batteryData.capacity}
               onChange={handleInputChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="stateOfCharge">State of Charge</Label>
-            <Input
-              type="number"
-              name="stateOfCharge"
-              id="stateOfCharge"
-              value={batteryData.stateOfCharge}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="tradingStrat">Trading Strategy</Label>
-            <Input
-              type="text"
-              name="tradingStrat"
-              id="tradingStrat"
-              value={batteryData.tradingStrat}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-          <Button color="primary" onClick={handleAddBattery}>
-            Add Battery
-          </Button>
-        </ModalBody>
-      </Modal>
-      </div>
-    );
-  }
-
-  // Prepare table data for display
-  const tableData = userBatteries.map(battery => ({
-    id: battery._id,
-    capacity: battery.capacity,
-    stateOfCharge: battery.stateOfCharge,
-    state: battery.state,
-    tradingStrat: battery.tradingStrat
-  }));
-
-  return (
-    <div>
-      <h1>Your Batteries</h1>
-      <BatteryTable 
-        tableData={tableData} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-        onAddBattery={handleAdd}  // Open modal for adding battery
-      />
-              <Modal isOpen={modalOpen} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>{isEditing ? 'Edit Battery' : 'Add New Battery'}</ModalHeader>
-        <ModalBody>
-          <FormGroup>
-            <Label for="capacity">Capacity</Label>
-            <Input
-              type="number"
-              name="capacity"
-              id="capacity"
-              value={batteryData.capacity}
-              onChange={handleInputChange}
-              disabled={isEditing} // Disable capacity field during edit
+              disabled={isEditing}
             />
           </FormGroup>
           <FormGroup>
@@ -204,17 +160,12 @@ const Batteries = () => {
           </FormGroup>
           <FormGroup>
             <Label for="state">State</Label>
-            <Input
-              type="select"
-              name="state"
-              id="state"
-              value={batteryData.state}
-              onChange={handleInputChange}
-            >
-              <option value="idle">Idle</option>
-              <option value="charging">Charging</option>
-              <option value="discharging">Discharging</option>
-              <option value="blocked">Blocked</option>
+            <Input type="select" name="state" id="state" value={batteryData.state} onChange={handleInputChange}>
+              {Object.values(BATTERY_STATES).map((state) => (
+                <option key={state} value={state}>
+                  {state.charAt(0).toUpperCase() + state.slice(1)}
+                </option>
+              ))}
             </Input>
           </FormGroup>
           <FormGroup>
@@ -227,8 +178,8 @@ const Batteries = () => {
               onChange={handleInputChange}
             />
           </FormGroup>
-          <Button color="primary" onClick={isEditing ? handleUpdateBattery : handleAddBattery}>
-            {isEditing ? 'Update Battery' : 'Add Battery'}
+          <Button color="primary" onClick={handleSubmit}>
+            {isEditing ? "Update Battery" : "Add Battery"}
           </Button>
         </ModalBody>
       </Modal>

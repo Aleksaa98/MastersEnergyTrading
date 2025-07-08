@@ -4,6 +4,7 @@ import { login } from '../../store/authSlice';
 import { useNavigate, Link } from 'react-router-dom';
 import { Alert, Card, CardBody, FormGroup, Label, Input, Button } from 'reactstrap';
 import logo from '../../assets/images/logos/websitelogo.svg';
+import ParticleBackground from '../../components/dashboard/ParticleBackground'; 
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -26,6 +27,7 @@ const Login = () => {
     return (
         <div className="auth-wrapper">
             <Card className="auth-card">
+                <ParticleBackground /> 
                 <CardBody>
                     <div className="auth-logo">
                         <img src={logo} alt="Logo" />
