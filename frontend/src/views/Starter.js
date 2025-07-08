@@ -1,6 +1,8 @@
 import { Col, Row } from "reactstrap";
+import { useSelector } from "react-redux";
 import Feeds from "../components/dashboard/Feeds";
 import PricesGraph from "../components/dashboard/PricesGraph";
+import AveragePriceWidget from "../components/dashboard/AveragePriceWidget";
 
 import Blog from "../components/dashboard/Blog";
 import bg1 from "../assets/images/bg/bg1.jpg";
@@ -44,17 +46,20 @@ const BlogData = [
 ];
 
 const Starter = () => {
+  const { actual } = useSelector((state) => state.prices);
+  const averagePrice = actual.length > 0 ? actual.reduce((acc, price) => acc + price, 0) / actual.length : 0;
+
   return (
     <div>
       {/***Top Cards***/}
-
       {/***Sales & Feed***/}
       <Row>
         <Col lg="9">
-            <PricesGraph />
+          <PricesGraph />
         </Col>
         <Col xl="3">
           <Feeds />
+          <AveragePriceWidget averagePrice={averagePrice} />
         </Col>
       </Row>
 
@@ -73,7 +78,6 @@ const Starter = () => {
           </Col>
         ))}
       </Row>
-      
     </div>
   );
 };

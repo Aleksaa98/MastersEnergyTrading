@@ -1,0 +1,100 @@
+// assets/scss/layout/_auth.scss
+
+@import '../_variables.scss';
+
+// Keyframe animation for a subtle pulsing glow on the card's border
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 15px rgba($cyan, 0.2), 0 0 5px rgba($white, 0.1) inset;
+  }
+  50% {
+    box-shadow: 0 0 30px rgba($cyan, 0.5), 0 0 10px rgba($white, 0.2) inset;
+  }
+  100% {
+    box-shadow: 0 0 15px rgba($cyan, 0.2), 0 0 5px rgba($white, 0.1) inset;
+  }
+}
+
+// This wrapper will now just center the card within the main layout's content area
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 80vh; // Use min-height to ensure it fills the space vertically
+
+  .auth-card {
+    background: rgba(10, 14, 28, 0.6); // A darker, more translucent glass effect
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px; // A more compact card size
+    z-index: 1;
+    color: $white;
+    animation: pulse-glow 5s infinite ease-in-out; // Apply the glowing border animation
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      img {
+        max-width: 160px;
+      }
+    }
+
+    h2 {
+      color: $white;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    .form-control {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: $white;
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      transition: all 0.3s ease;
+
+      &:focus {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: $cyan;
+        box-shadow: none;
+        color: $white;
+      }
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .btn-primary {
+      background: $cyan;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: darken($cyan, 12%);
+        box-shadow: 0 0 25px rgba($cyan, 0.7);
+        transform: translateY(-2px);
+      }
+    }
+
+    .auth-link {
+      color: $cyan;
+      text-decoration: none;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: darken($cyan, 10%);
+        text-decoration: underline;
+      }
+    }
+  }
+}

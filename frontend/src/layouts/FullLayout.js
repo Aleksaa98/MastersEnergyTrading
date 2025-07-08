@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Container } from "reactstrap";
+import ParticleBackground from "../components/dashboard/ParticleBackground";
 
 const FullLayout = () => {
   return (
@@ -14,7 +15,8 @@ const FullLayout = () => {
           <Sidebar />
         </aside>
         {/********Content Area**********/}
-        <div className="contentArea">
+        <div className="contentArea" style={{ position: "relative", zIndex: 1 }}>
+          <ParticleBackground />
           {/********Middle Content**********/}
           <Container className="p-4" fluid>
             <Outlet />
