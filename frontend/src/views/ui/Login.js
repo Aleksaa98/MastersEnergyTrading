@@ -27,7 +27,7 @@ const Login = () => {
     return (
         <div className="auth-wrapper">
             <Card className="auth-card">
-                <ParticleBackground /> 
+                {/* <ParticleBackground />  */}
                 <CardBody>
                     <div className="auth-logo">
                         <img src={logo} alt="Logo" />

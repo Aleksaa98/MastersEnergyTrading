@@ -17,4 +17,8 @@ const dataApiInstance = axios.create({  //! TRENUTNO SAMO
     baseURL: 'http://localhost:3001/api'
 });
 
-export { apiInstance, tradeApiInstance, dataApiInstance };
+const AIApiInstance = axios.create({ 
+    baseURL: 'http://localhost:3002'
+});
+
+export { apiInstance, tradeApiInstance, dataApiInstance, AIApiInstance };

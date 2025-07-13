@@ -10,7 +10,7 @@ import {
   Row,
   Col,
 } from "reactstrap";
-import Blog from "../../components/dashboard/Blog";
+import Blog from "../../components/dashboard/MarketNews";
 import bg1 from "../../assets/images/bg/bg1.jpg";
 import bg2 from "../../assets/images/bg/bg2.jpg";
 import bg3 from "../../assets/images/bg/bg3.jpg";

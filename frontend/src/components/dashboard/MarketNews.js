@@ -8,7 +8,7 @@ import {
   Button,
 } from "reactstrap";
 
-const Blog = (props) => {
+const MarketNews = (props) => {
   return (
     <Card>
       <CardImg alt="Card image cap" src={props.image} />
@@ -16,10 +16,10 @@ const Blog = (props) => {
         <CardTitle tag="h5">{props.title}</CardTitle>
         <CardSubtitle>{props.subtitle}</CardSubtitle>
         <CardText className="mt-3">{props.text}</CardText>
-        <Button color={props.color}>Read More</Button>
+        <Button color={props.color} href={props.link} target="_blank" rel="noopener noreferrer">Read More</Button>
       </CardBody>
     </Card>
   );
 };
 
-export default Blog;
+export default MarketNews;

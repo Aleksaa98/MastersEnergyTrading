@@ -1,10 +1,10 @@
 // src/redux/pricesSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { dataApiInstance } from '../../src/axiosConfig'; // Axios instance for microservice-trade on port 3001
+import { AIApiInstance } from '../../src/axiosConfig'; // Axios instance for microservice-trade on port 3001
 
 
 export const fetchPricesData = createAsyncThunk('price/fetchPrices', async () => {
-    const response = await dataApiInstance.get('/price/predicted-prices');
+    const response = await AIApiInstance.get('/prices');
     return response.data;
 });
 

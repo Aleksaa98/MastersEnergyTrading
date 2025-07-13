@@ -36,7 +36,6 @@ const Register = () => {
     return (
         <div className="auth-wrapper">
             <Card className="auth-card">
-                <ParticleBackground /> 
                 <CardBody>
                     <div className="auth-logo">
                         <img src={logo} alt="Logo" />

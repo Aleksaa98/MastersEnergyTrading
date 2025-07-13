@@ -1,7 +1,7 @@
 import Chart from 'react-apexcharts';
 import { Card, CardBody, CardTitle, CardSubtitle } from 'reactstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { fetchPricesData } from '../../store/pricesSlice';
 
 const PriceChart = () => {
@@ -9,51 +9,49 @@ const PriceChart = () => {
   const dispatch = useDispatch();
   const { actual = [], predicted = [] } = useSelector(state => state.prices ?? {});
 
-  const actualDates = [...actual].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  const predictedDates = [...predicted].sort((a, b) => new Date(a.date) - new Date(b.date));
-  
   useEffect(() => {
       dispatch(fetchPricesData());
   }, [dispatch]);
 
-  const pricesPredicted = predictedDates.map(item => item.price);
-  const shiftedPrices = Array(8).fill(null).concat(pricesPredicted);
-  const prices = actualDates.map(item => item.price);
-  const today = new Date();
-  const todayFormatted = today.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  const actualDates = useMemo(() => [...actual].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)), [actual]);
+  const predictedDates = useMemo(() => [...predicted].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)), [predicted]);
 
-const timeList = actualDates.map(item => {
-  const dateObj = new Date(item.date);
+  const prices = useMemo(() => actualDates.map(item => item.price), [actualDates]);
+  const shiftedPrices = useMemo(() => {
+    const pricesPredicted = predictedDates.map(item => item.price);
+    return Array(8).fill(null).concat(pricesPredicted);
+  }, [predictedDates]);
 
-  return dateObj.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
-});
+  const todayFormatted = useMemo(() => {
+    const today = new Date();
+    return today.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }, []);
 
-const predictedTimeList = predictedDates.map(item => {
-  const dateObj = new Date(item.date);
+  const timeList = useMemo(() => actualDates.map(item => {
+    const dateObj = new Date(item.timestamp);
+    return dateObj.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  }), [actualDates]);
 
-  return dateObj.toLocaleTimeString('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
-});
+  const predictedTimeList = useMemo(() => predictedDates.map(item => {
+    const dateObj = new Date(item.timestamp);
+    return dateObj.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  }), [predictedDates]);
 
-var time = timeList.concat(predictedTimeList);
+  const time = useMemo(() => timeList.concat(predictedTimeList), [timeList, predictedTimeList]);
 
-  useEffect(() => {
-    dispatch(fetchPricesData());
-  }, [dispatch]);
-
-    const options = {
+  const options = {
     chart: {
       toolbar: {
         show: false,
@@ -96,6 +94,7 @@ var time = timeList.concat(predictedTimeList);
       },
     ],
   };
+
   const series = [
     {
       name: "Noted prices",
@@ -107,12 +106,12 @@ var time = timeList.concat(predictedTimeList);
     },
   ];
 
-    return (
+  return (
     <Card>
       <CardBody>
         <CardTitle tag="h5">Sales Summary</CardTitle>
         <CardSubtitle className="text-muted" tag="h6">
-          {todayFormatted} 
+          {todayFormatted}
         </CardSubtitle>
         <Chart options={options} series={series} type="bar" height="379" />
       </CardBody>

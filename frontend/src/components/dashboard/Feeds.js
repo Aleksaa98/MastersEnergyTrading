@@ -6,16 +6,16 @@ const Feeds = () => {
 
    const { actual = []} = useSelector(state => state.prices ?? {});
    
-   const mostRecent = actual.length > 0 ? actual[0].price : 'N/A';
+   const mostRecent = actual.length > 0 ? actual[actual.length-1].price : 'N/A';
 
      const getCardConfig = (price) => {
-    if (price < 5) {
+    if (price < 6) {
       return {
         className: 'bg-success text-white',
         message: 'Perfect time to charge your batteries.'
       };
     }
-    if (price < 7) {
+    if (price < 8) {
       return {
         className: 'bg-warning text-dark',
         message: 'Price is mid-range — better to stay passive or sell and turn off charging.'

@@ -3,45 +3,48 @@ import { useSelector } from "react-redux";
 import Feeds from "../components/dashboard/Feeds";
 import PricesGraph from "../components/dashboard/PricesGraph";
 import AveragePriceWidget from "../components/dashboard/AveragePriceWidget";
-
-import Blog from "../components/dashboard/Blog";
-import bg1 from "../assets/images/bg/bg1.jpg";
-import bg2 from "../assets/images/bg/bg2.jpg";
+import MarketNews from "../components/dashboard/MarketNews";
+import bg1 from "../assets/images/energy/8res.jpg";
+import bg2 from "../assets/images/energy/wind_turbine.jpg";
 import bg3 from "../assets/images/bg/bg3.jpg";
 import bg4 from "../assets/images/bg/bg4.jpg";
 
-const BlogData = [
+const MarketNewsData = [
   {
     image: bg1,
-    title: "This is simple blog",
-    subtitle: "2 comments, 1 Like",
+    title: "Enhancing Grid Stability",
+    subtitle: "Energy Today, 1h ago",
     description:
-      "This is a wider card with supporting text below as a natural lead-in to additional content.",
+      "The data helps grid operators calculate power demand in their networks.",
     btnbg: "primary",
+    link: "https://www.innovations-report.com/engineering/power-and-electrical-engineering/grid-stability-precise-forecasts-196893/",
   },
   {
     image: bg2,
-    title: "Lets be simple blog",
-    subtitle: "2 comments, 1 Like",
+    title: "New Wind Farm Opens",
+    subtitle: "CNBC, 3h ago",
     description:
-      "This is a wider card with supporting text below as a natural lead-in to additional content.",
+      "The new offshore wind farm 'SeaBreeze' is now operational, adding 500 MW to the national grid.",
     btnbg: "primary",
+    link: "https://www.cnbc.com/2023/08/23/the-worlds-largest-floating-wind-farm-is-officially-open.html",
   },
   {
-    image: bg3,
-    title: "Don't Lamp blog",
-    subtitle: "2 comments, 1 Like",
+    image: "https://images.pexels.com/photos/7238749/pexels-photo-7238749.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    title: "Energy Prices Drop",
+    subtitle: "TechInvest, 1d ago",
     description:
-      "This is a wider card with supporting text below as a natural lead-in to additional content.",
+      "A breakthrough in battery technology has caused a significant drop in energy prices.",
     btnbg: "primary",
+    link: "https://www.energy-storage.news/behind-the-numbers-bnef-finds-40-year-on-year-drop-in-bess-costs/",
   },
   {
-    image: bg4,
-    title: "Simple is beautiful",
-    subtitle: "2 comments, 1 Like",
+    image: "https://images.pexels.com/photos/3044470/pexels-photo-3044470.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    title: "Government Announces Rebates",
+    subtitle: "National News, 2d ago",
     description:
-      "This is a wider card with supporting text below as a natural lead-in to additional content.",
+      "New government rebates for homes with solar panels and battery storage.",
     btnbg: "primary",
+    link: "https://www.canada.ca/en/department-finance/news/2025/06/government-confirms-non-taxability-of-canada-carbon-rebates-for-small-businesses.html",
   },
 ];
 
@@ -66,14 +69,15 @@ const Starter = () => {
       {/***Table ***/}
       {/***Blog Cards***/}
       <Row>
-        {BlogData.map((blg, index) => (
+        {MarketNewsData.map((news, index) => (
           <Col sm="6" lg="6" xl="3" key={index}>
-            <Blog
-              image={blg.image}
-              title={blg.title}
-              subtitle={blg.subtitle}
-              text={blg.description}
-              color={blg.btnbg}
+            <MarketNews
+              image={news.image}
+              title={news.title}
+              subtitle={news.subtitle}
+              text={news.description}
+              color={news.btnbg}
+              link={news.link}
             />
           </Col>
         ))}
