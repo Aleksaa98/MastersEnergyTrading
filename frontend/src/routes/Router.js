@@ -19,6 +19,8 @@ const Login = lazy(() => import("../views/ui/Login"));
 const Register = lazy(() => import("../views/ui/Register"));
 const Profile = lazy(() => import("../views/ui/Profile"));
 const Payment = lazy(() => import("../views/ui/Payment"));
+// const Transactions = lazy(() => import("../views/ui/Transactions"));
+const Market = lazy(() => import("../views/ui/Market"));
 
 /*****Routes******/
 
@@ -40,7 +42,9 @@ const ThemeRoutes = [
       { path: "/login", exact:true, element: <Login />},
       { path: "/register", exact:true, element: <Register />},
       { path: "/profile", exact:true, element: <Profile />},
-      { path: "/payment", exact:true, element: <Payment />}
+      { path: "/payment", exact:true, element: <Payment />},
+      // { path: "/transactions", exact:true, element: <Transactions />},
+      { path: "/market", exact:true, element: <Market />}
     ],
   },
 ];

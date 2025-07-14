@@ -8,11 +8,17 @@ export const fetchPricesData = createAsyncThunk('price/fetchPrices', async () =>
     return response.data;
 });
 
+export const fetchPredictedPrices = createAsyncThunk('price/fetchPredicted', async () => {
+    const response = await AIApiInstance.get('/predict');
+    return response.data;
+});
+
 const pricesSlice = createSlice({
   name: 'prices',
   initialState: {
     actual: [],
-    predicted: []
+    predicted: [],
+    predicted24: []
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -23,6 +29,17 @@ const pricesSlice = createSlice({
       state.predicted = action.payload.predicted;
     });
 
+    builder.addCase(fetchPredictedPrices.fulfilled, (state, action) => {
+        console.log('✅ fetchPredictedPrices.fulfilled → payload:', action.payload); 
+
+        const { prices, timestamps } = action.payload;
+
+        state.predicted24 = timestamps.map((ts, i) => ({
+            price: parseFloat(prices[i].toFixed(1)), // optional rounding
+            timestamp: ts
+        }));
+    });
+
     // Optional: log errors if needed
     builder.addCase(fetchPricesData.rejected, (state, action) => {
       console.error('❌ fetchPricesData.rejected →', action.error);
@@ -30,6 +47,14 @@ const pricesSlice = createSlice({
 
     builder.addCase(fetchPricesData.pending, () => {
       console.log('⏳ fetchPricesData.pending...');
+    });
+
+    builder.addCase(fetchPredictedPrices.rejected, (state, action) => {
+      console.error('❌ fetchPredictedPrices.rejected →', action.error);
+    });
+
+    builder.addCase(fetchPredictedPrices.pending, () => {
+      console.log('⏳ fetchPredictedPrices.pending...');
     });
   }
 });
