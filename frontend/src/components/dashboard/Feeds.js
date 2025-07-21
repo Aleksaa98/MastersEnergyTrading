@@ -31,7 +31,7 @@ const Feeds = () => {
      return (
     <Card className={`mb-3 ${config.className ?? ''}`}>
       <CardBody>
-        <CardTitle tag="h1" className="text-center">{mostRecent}$</CardTitle>
+        <CardTitle tag="h1" className="text-center">{mostRecent}¢</CardTitle>
         <CardText className="text-center">
           per kWh
         </CardText>

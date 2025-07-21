@@ -60,7 +60,7 @@ const PredictedPricesGraph = () => {
     },
     yaxis: {
       title: {
-        text: 'Price (€)',
+        text: 'Price ($)',
       },
     },
     tooltip: {

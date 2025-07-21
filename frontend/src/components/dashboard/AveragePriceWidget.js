@@ -10,7 +10,7 @@ const AveragePriceWidget = ({ averagePrice }) => {
           Today's average energy price
         </CardSubtitle>
         <div className="d-flex align-items-center mt-3">
-          <h2 className="mb-0">${averagePrice.toFixed(2)}</h2>
+          <h2 className="mb-0">¢{averagePrice.toFixed(2)}</h2>
         </div>
       </CardBody>
     </Card>

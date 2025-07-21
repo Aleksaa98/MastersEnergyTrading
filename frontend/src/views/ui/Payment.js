@@ -71,7 +71,7 @@ const PaymentPage = () => {
                 <CardBody>
                     <Form onSubmit={handleSubmit}>
                         <FormGroup>
-                            <Label for="amount">Amount (€)</Label>
+                            <Label for="amount">Amount ($)</Label>
                             <Input
                                 id="amount"
                                 name="amount"

@@ -36,6 +36,18 @@ export const updateProfile = createAsyncThunk(
     }
   );
 
+  export const fetchUserByUsername = createAsyncThunk(
+  'auth/fetchUserByUsername',
+  async ({ username, token }) => {
+    const res = await fetch(`http://localhost:3001/api/users/${username}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Failed to fetch user');
+    const data = await res.json();
+    return data.data;
+  }
+);
+
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
@@ -79,7 +91,18 @@ const authSlice = createSlice({
                 state.status = 'updated';
                 state.user = action.payload;
             })
-    }
+            .addCase(fetchUserByUsername.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(fetchUserByUsername.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.user = action.payload;
+            })
+            .addCase(fetchUserByUsername.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            });
+        }
 });
 
 export const { logout, resetStatus } = authSlice.actions;

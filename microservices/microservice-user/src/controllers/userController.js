@@ -106,3 +106,15 @@ exports.deleteUserByUsername = async (req, res) => {
         res.status(500).json({ error: 'Error deleting user' });
     }
 };
+
+exports.getUserById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const response = await axios.get(`${DATA_SERVICE_URL}/users/id/${id}`);
+        res.status(200).json(response.data);
+    } catch (error){
+        console.error('Error fetching user by ID:', error);
+        res.status(500).json({ error: 'Error fetching user by ID' });
+    }
+};

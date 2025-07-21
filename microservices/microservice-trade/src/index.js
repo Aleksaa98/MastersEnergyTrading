@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const batteryRoutes = require('./routes/batteryRoutes');
 const transactionRoutes = require('./routes/transactionsRoutes')
 const priceRoutes = require('./routes/priceRoutes');
+const { startBatteryChargeCronJob } = require('./job/cronJob');
 const app = express();
 
 require('dotenv').config();
@@ -30,4 +31,5 @@ app.use((err, req, res, next) => {
 
 app.listen(port, () => {
     console.log(`Trade service running on port ${port}`);
+    startBatteryChargeCronJob();
 });
