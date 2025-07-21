@@ -13,4 +13,12 @@ const tradeApiInstance = axios.create({
     withCredentials: true // Allow sending cookies with requests
 });
 
-export { apiInstance, tradeApiInstance };
+const dataApiInstance = axios.create({  //! TRENUTNO SAMO
+    baseURL: 'http://localhost:3001/api'
+});
+
+const AIApiInstance = axios.create({ 
+    baseURL: 'http://localhost:3002'
+});
+
+export { apiInstance, tradeApiInstance, dataApiInstance, AIApiInstance };

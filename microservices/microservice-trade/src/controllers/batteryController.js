@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const DATA_SERVICE_URL = 'http://localhost:3001/api/batteries';
+const DATA_SERVICE_URL = 'http://localhost:3001/api/batteries';  //change this to microservice-data:3001
 
 // Get all batteries
 exports.getBatteries = async (req, res) => {

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../../store/authSlice';
-import { useNavigate } from 'react-router-dom';
-import { Alert } from 'reactstrap'; 
+import { useNavigate, Link } from 'react-router-dom';
+import { Alert, Card, CardBody, FormGroup, Label, Input, Button } from 'reactstrap';
+import logo from '../../assets/images/logos/websitelogo.svg';
+import ParticleBackground from '../../components/dashboard/ParticleBackground'; 
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -19,46 +21,62 @@ const Login = () => {
     useEffect(() => {
         if (status === 'succeeded') {
             navigate('/starter');
-        } 
+        }
     }, [status, navigate]);
 
-
     return (
-        <div>
-            <h2>Login</h2>
+        <div className="auth-wrapper">
+            <Card className="auth-card">
+                {/* <ParticleBackground />  */}
+                <CardBody>
+                    <div className="auth-logo">
+                        <img src={logo} alt="Logo" />
+                    </div>
+                    <h2>Welcome Back</h2>
 
-            {status === 'failed' && (
-                <Alert color="danger">
-                    Incorrect username or password. Please try again.
-                </Alert>
-            )}
+                    {status === 'failed' && (
+                        <Alert color="danger" className="text-center">
+                            Incorrect username or password.
+                        </Alert>
+                    )}
 
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Username:</label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                
-                <button type="submit" disabled={status === 'loading'}>
-                    Login
-                </button>
-                {error && <p>{error.message}</p>}
-            </form>
-            
+                    <form onSubmit={handleSubmit}>
+                        <FormGroup>
+                            <Label for="username">Username</Label>
+                            <Input
+                                type="text"
+                                id="username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                                placeholder="Enter your username"
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="password">Password</Label>
+                            <Input
+                                type="password"
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                placeholder="Enter your password"
+                            />
+                        </FormGroup>
+                        <Button type="submit" color="primary" block disabled={status === 'loading'}>
+                            {status === 'loading' ? 'Logging in...' : 'Login'}
+                        </Button>
+                    </form>
+                    <div className="text-center mt-3">
+                        <p>
+                            Don't have an account?{' '}
+                            <Link to="/register" className="auth-link">
+                                Register here
+                            </Link>
+                        </p>
+                    </div>
+                </CardBody>
+            </Card>
         </div>
     );
 };

@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const userRoutes = require('./routes/userRoutes')
@@ -6,9 +7,13 @@ const batteryRoutes = require('./routes/batteryRoutes')
 const tradingStrategyRoutes = require('./routes/tradingStrategyRoutes')
 const priceHistoryRoutes = require('./routes/priceHistoryRoutes')
 const transactionHistoryRoutes = require('./routes/transactionHistoryRoutes')
+require('./job/cronJob');
 
 const app = express();
 const port = process.env.PORT || 3001;
+app.use(cors({
+  origin: 'http://localhost:3000'  // frontend port
+}));
 
 // Middleware to parse JSON
 app.use(express.json());

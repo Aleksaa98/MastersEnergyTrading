@@ -1,0 +1,97 @@
+// assets/scss/layout/_custom-views.scss
+
+@import '../_variables.scss';
+
+// A wrapper to style the view containers
+.custom-view-wrapper {
+  h1 {
+    color: $white;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+  }
+
+  .card {
+    background: rgba(10, 14, 28, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: $white;
+    margin-bottom: 1.5rem;
+
+    .card-title {
+      color: $white;
+      font-weight: 400;
+    }
+
+    .card-subtitle {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .table {
+      color: $white;
+      border-color: rgba(255, 255, 255, 0.1);
+
+      th, td {
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      thead th {
+        color: $cyan;
+        border-bottom-width: 2px;
+      }
+    }
+
+    .form-control, .form-select {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: $white;
+      border-radius: 8px;
+
+      &:focus {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: $cyan;
+        box-shadow: none;
+        color: $white;
+      }
+    }
+
+    .btn-primary {
+      background: $cyan;
+      border: none;
+      &:hover {
+        background: darken($cyan, 10%);
+      }
+    }
+  }
+
+  // Custom styling for the wallet card on the profile page
+  .customCard {
+    background: rgba(10, 14, 28, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    color: $white;
+    text-align: center;
+
+    .title {
+      font-size: 1.2rem;
+      color: $cyan;
+    }
+
+    .price {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin: 1rem 0;
+    }
+
+    .description {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .customButton {
+      margin-top: 1.5rem;
+    }
+  }
+}
