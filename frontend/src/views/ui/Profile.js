@@ -216,7 +216,7 @@ const ProfilePage = () => {
                           {transaction.type.charAt(0).toUpperCase() +
                             transaction.type.slice(1)}
                         </td>
-                        <td>{transaction.amount}</td>
+                        <td>{transaction.amount.toFixed(2)}</td>
                       </tr>
                     ))
                   ) : (

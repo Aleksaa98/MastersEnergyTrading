@@ -22,9 +22,9 @@ const navigation = [
     icon: "bi bi-graph-up",
   },
   {
-    title: "Transactions",
-    href: "/transactions",
-    icon: "bi bi-arrow-left-right",
+    title: "Strategies",
+    href: "/strategies",
+    icon: "bi bi-lightbulb",
   },
 ];
 

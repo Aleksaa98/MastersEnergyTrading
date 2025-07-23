@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUserBatteries, createBattery, updateBattery, deleteBattery } from "../../store/batterySlice";
+import {
+  fetchUserBatteries,
+  createBattery,
+  updateBattery,
+  deleteBattery,
+} from "../../store/batterySlice";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import BatteryTable from "../../components/dashboard/BatteryTable";
@@ -17,9 +22,11 @@ import {
   Label,
   Input,
 } from "reactstrap";
+import PageHeader from "../../components/dashboard/PageHeader";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { BATTERY_STATES } from "../../constants";
+import axios from "axios";
 
 const initialBatteryData = {
   capacity: "",
@@ -34,6 +41,7 @@ const Batteries = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const { userBatteries, loading } = useSelector((state) => state.battery);
+  const [strategies, setStrategies] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -49,6 +57,22 @@ const Batteries = () => {
   }, [dispatch, user, token, navigate]);
 
   useEffect(() => {
+    const fetchStrategies = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/tradingStrategies"
+        );
+        const fetchedStrategies = response.data;
+        const noStrategy = fetchedStrategies.find(s => s.name === 'No-Strategy');
+        const otherStrategies = fetchedStrategies.filter(s => s.name !== 'No-Strategy');
+        const orderedStrategies = noStrategy ? [noStrategy, ...otherStrategies] : otherStrategies;
+        setStrategies(orderedStrategies);
+      } catch (error) {
+        console.error("Error fetching strategies:", error);
+      }
+    };
+
+    fetchStrategies();
     refreshBatteries();
   }, [refreshBatteries]);
 
@@ -66,7 +90,11 @@ const Batteries = () => {
 
   const handleAdd = () => {
     setIsEditing(false);
-    setBatteryData(initialBatteryData);
+    const noStrategy = strategies.find(s => s.name === 'No-Strategy');
+    setBatteryData({
+      ...initialBatteryData,
+      tradingStrat: noStrategy ? noStrategy._id : ''
+    });
     toggleModal();
   };
 
@@ -90,8 +118,15 @@ const Batteries = () => {
 
   const handleSubmit = () => {
     const action = isEditing
-      ? updateBattery({ batteryId: selectedBatteryId, updateData: batteryData, token })
-      : createBattery({ batteryData: { ...batteryData, ownerId: user._id }, token });
+      ? updateBattery({
+          batteryId: selectedBatteryId,
+          updateData: batteryData,
+          token,
+        })
+      : createBattery({
+          batteryData: { ...batteryData, traderId: user._id },
+          token,
+        });
 
     dispatch(action).then(() => {
       refreshBatteries();
@@ -108,12 +143,17 @@ const Batteries = () => {
     capacity: battery.capacity,
     stateOfCharge: battery.stateOfCharge,
     state: battery.state,
-    tradingStrat: battery.tradingStrat,
+    tradingStrat:
+      strategies.find((s) => s._id === battery.tradingStrat)?.name ||
+      "Not Set",
   }));
 
   return (
     <div className="custom-view-wrapper">
-      <h1>Your Batteries</h1>
+      <PageHeader
+        title="Your Batteries"
+        description="Here you can manage your batteries."
+      />
       {userBatteries.length === 0 ? (
         <Card>
           <CardBody>
@@ -131,11 +171,18 @@ const Batteries = () => {
           </CardBody>
         </Card>
       ) : (
-        <BatteryTable tableData={tableData} onEdit={handleEdit} onDelete={handleDelete} onAddBattery={handleAdd} />
+        <BatteryTable
+          tableData={tableData}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onAddBattery={handleAdd}
+        />
       )}
 
       <Modal isOpen={modalOpen} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>{isEditing ? "Edit Battery" : "Add New Battery"}</ModalHeader>
+        <ModalHeader toggle={toggleModal}>
+          {isEditing ? "Edit Battery" : "Add New Battery"}
+        </ModalHeader>
         <ModalBody>
           <FormGroup>
             <Label for="capacity">Capacity</Label>
@@ -160,7 +207,13 @@ const Batteries = () => {
           </FormGroup>
           <FormGroup>
             <Label for="state">State</Label>
-            <Input type="select" name="state" id="state" value={batteryData.state} onChange={handleInputChange}>
+            <Input
+              type="select"
+              name="state"
+              id="state"
+              value={batteryData.state}
+              onChange={handleInputChange}
+            >
               {Object.values(BATTERY_STATES).map((state) => (
                 <option key={state} value={state}>
                   {state.charAt(0).toUpperCase() + state.slice(1)}
@@ -171,12 +224,18 @@ const Batteries = () => {
           <FormGroup>
             <Label for="tradingStrat">Trading Strategy</Label>
             <Input
-              type="text"
+              type="select"
               name="tradingStrat"
               id="tradingStrat"
               value={batteryData.tradingStrat}
               onChange={handleInputChange}
-            />
+            >
+              {strategies.map((strategy) => (
+                <option key={strategy._id} value={strategy._id}>
+                  {strategy.name}
+                </option>
+              ))}
+            </Input>
           </FormGroup>
           <Button color="primary" onClick={handleSubmit}>
             {isEditing ? "Update Battery" : "Add Battery"}

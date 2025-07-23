@@ -8,6 +8,10 @@ const tradingStrategySchema = new Schema({
         required:true,
         unique:true
     },
+    description: {
+        type:String,
+        required:true
+    },
     type: {
         type:String,
         required:true

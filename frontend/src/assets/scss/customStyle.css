@@ -73,5 +73,20 @@
   color: #666666;
 }
 
+.strategy-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.strategy-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+}
+
+.page-header {
+  margin-bottom: 3rem;
+}
+  
+
 
   
