@@ -169,7 +169,7 @@ const ProfilePage = () => {
           <div className="customCard">
             <div className="content">
               <div className="title">Wallet balance</div>
-              <div className="price">{user.wallet.balance}$</div>
+              <div className="price">{user.wallet.balance.toFixed(2)}$</div>
               <div className="description">
                 These funds are used for your online transactions.
               </div>

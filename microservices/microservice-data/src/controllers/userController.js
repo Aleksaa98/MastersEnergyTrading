@@ -64,11 +64,17 @@ exports.getUserByUsername = async (req, res) => {
 exports.updateUserByUsername = async (req, res) => {
     try {
         const { username } = req.params;
-        const updateFields = req.body; 
+        const updateFields = req.body;
+
+        // Ensure wallet balance is rounded to 2 decimal places if it exists in the update
+        if (updateFields.wallet && typeof updateFields.wallet.balance === 'number') {
+            updateFields.wallet.balance = parseFloat(updateFields.wallet.balance.toFixed(2));
+        }
+
         const user = await User.findOneAndUpdate(
             { username },
-            { $set: updateFields }, 
-            { new: true, runValidators: true } 
+            { $set: updateFields },
+            { new: true, runValidators: true }
         );
 
         if (!user) {

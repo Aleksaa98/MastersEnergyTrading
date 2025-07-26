@@ -19,6 +19,8 @@ const updateBatteryCharge = async () => {
         const strategies = strategiesResponse.data;
 
         const buyLowSellHighStrategy = strategies.find(s => s.name === 'Buy Low, Sell High');
+        const peakHoursStrategy = strategies.find(s => s.name === 'Charge on Off-Peak, Discharge on-Peak');
+
 
         // First, apply strategy-based state changes
         if (buyLowSellHighStrategy) {
@@ -43,6 +45,42 @@ const updateBatteryCharge = async () => {
                         } else if (stateOfCharge <= tenPercentCapacity) {
                             newState = 'idle';
                         }
+                    }
+
+                    if (newState !== state) {
+                        await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, { state: newState });
+                        console.log(`Strategy updated battery ${_id} state to ${newState}.`);
+                        // Update the battery state in our local array to reflect the change for the next step
+                        battery.state = newState;
+                    }
+                }
+            }
+        }
+        if (peakHoursStrategy) {
+            for (const battery of batteries) {
+                if (battery.tradingStrat === peakHoursStrategy._id) {
+                    const { _id, state, stateOfCharge, capacity } = battery;
+                    const tenPercentCapacity = Math.round(capacity * 0.10);
+                    const ninetyFivePercentCapacity = Math.round(capacity * 0.95);
+                    const { offPeakStart, offPeakEnd, peakStart, peakEnd } = peakHoursStrategy.parameters;
+                    const currentHour = new Date().getHours();
+
+                    let newState = state;
+
+                    if (currentHour >= offPeakStart && currentHour < offPeakEnd) {
+                        if (stateOfCharge < ninetyFivePercentCapacity && state !== 'charging') {
+                            newState = 'charging';
+                        } else if (stateOfCharge >= ninetyFivePercentCapacity) {
+                            newState = 'idle';
+                        }
+                    } else if (currentHour >= peakStart && currentHour < peakEnd) {
+                        if (stateOfCharge > tenPercentCapacity && state !== 'discharging') {
+                            newState = 'discharging';
+                        } else if (stateOfCharge <= tenPercentCapacity) {
+                            newState = 'idle';
+                        }
+                    } else {
+                        newState = 'idle';
                     }
 
                     if (newState !== state) {
