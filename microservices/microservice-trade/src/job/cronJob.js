@@ -1,22 +1,68 @@
 const cron = require('node-cron');
 const axios = require('axios');
 
-const DATA_SERVICE_URL = 'http://localhost:3001/api'; // http://microservice-data:3001/api
+const DATA_SERVICE_URL = 'http://localhost:3001/api'; // Use environment variable in production
 
 const updateBatteryCharge = async () => {
     try {
-        console.log('Cron job started: Checking battery states...');
-        const [batteriesResponse, priceResponse] = await Promise.all([
+        console.log('Cron job started: Processing batteries...');
+
+        const [batteriesResponse, priceResponse, strategiesResponse] = await Promise.all([
             axios.get(`${DATA_SERVICE_URL}/batteries`),
-            axios.get(`${DATA_SERVICE_URL}/price/current`)
+            axios.get(`${DATA_SERVICE_URL}/price/current`),
+            axios.get(`${DATA_SERVICE_URL}/tradingStrategies`)
         ]);
 
-        const batteries = batteriesResponse.data;
+        let batteries = batteriesResponse.data;
         const currentPriceInCents = priceResponse.data.price;
-        const currentPrice = currentPriceInCents / 100; // Convert cents to dollars
-        console.log("CENA:::::" + currentPriceInCents)
+        const currentPrice = currentPriceInCents / 100;
+        const strategies = strategiesResponse.data;
+
+        const buyLowSellHighStrategy = strategies.find(s => s.name === 'Buy Low, Sell High');
+
+        // First, apply strategy-based state changes
+        if (buyLowSellHighStrategy) {
+            for (const battery of batteries) {
+                if (battery.tradingStrat === buyLowSellHighStrategy._id) {
+                    const { _id, state, stateOfCharge, capacity } = battery;
+                    const tenPercentCapacity = Math.round(capacity * 0.10);
+                    const ninetyFivePercentCapacity = Math.round(capacity * 0.95);
+                    const priceThreshold = 0.05;
+
+                    let newState = state;
+
+                    if (currentPrice <= priceThreshold) {
+                        if (stateOfCharge < ninetyFivePercentCapacity && state !== 'charging') {
+                            newState = 'charging';
+                        } else if (stateOfCharge >= ninetyFivePercentCapacity) {
+                            newState = 'idle';
+                        }
+                    } else { // currentPrice > priceThreshold
+                        if (stateOfCharge > tenPercentCapacity && state !== 'discharging') {
+                            newState = 'discharging';
+                        } else if (stateOfCharge <= tenPercentCapacity) {
+                            newState = 'idle';
+                        }
+                    }
+
+                    if (newState !== state) {
+                        await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, { state: newState });
+                        console.log(`Strategy updated battery ${_id} state to ${newState}.`);
+                        // Update the battery state in our local array to reflect the change for the next step
+                        battery.state = newState;
+                    }
+                }
+            }
+        }
+
+        // Second, process actions based on the current state of all batteries
         for (const battery of batteries) {
             const { _id, state, stateOfCharge, capacity, traderId } = battery;
+
+            if (state !== 'charging' && state !== 'discharging') {
+                continue; // Skip batteries that are not in an active state
+            }
+
             const tenPercentCapacity = Math.round(capacity * 0.10);
             const ninetyFivePercentCapacity = Math.round(capacity * 0.95);
 
@@ -25,12 +71,13 @@ const updateBatteryCharge = async () => {
                 const user = userResponse.data.data;
 
                 if (user.wallet.state === 'closed' || user.wallet.balance < currentPrice * 10) {
-                    await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, { state: 'blocked' });
-                    console.log(`Battery ${_id} blocked due to insufficient funds or inactive wallet.`);
+                    if (state !== 'blocked') {
+                        await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, { state: 'blocked' });
+                        console.log(`Battery ${_id} blocked due to insufficient funds or inactive wallet.`);
+                    }
                     continue;
-               }
+                }
 
-                let updated = false;
                 let newState = state;
                 let newStateOfCharge = stateOfCharge;
                 let cost = 0;
@@ -44,7 +91,6 @@ const updateBatteryCharge = async () => {
                         newStateOfCharge = ninetyFivePercentCapacity;
                         newState = 'idle';
                     }
-                    updated = true;
                 } else if (state === 'discharging') {
                     newStateOfCharge -= 10;
                     cost = -10 * currentPrice;
@@ -53,30 +99,28 @@ const updateBatteryCharge = async () => {
                         newStateOfCharge = tenPercentCapacity;
                         newState = 'idle';
                     }
-                    updated = true;
                 }
 
-                if (updated) {
-                    const finalStateOfCharge = Math.round(newStateOfCharge);
-                    await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, {
-                        state: newState,
-                        stateOfCharge: finalStateOfCharge
-                    });
+                const finalStateOfCharge = Math.round(newStateOfCharge);
+                await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, {
+                    state: newState,
+                    stateOfCharge: finalStateOfCharge
+                });
 
-                    const newBalance = Number((user.wallet.balance - cost).toFixed(2));
-                    await axios.patch(`${DATA_SERVICE_URL}/users/${user.username}`, {
-                        wallet: { ...user.wallet, balance: newBalance, state: "active" }
-                    });
+                const newBalance = Number((user.wallet.balance - cost).toFixed(2));
+                await axios.patch(`${DATA_SERVICE_URL}/users/${user.username}`, {
+                    wallet: { ...user.wallet, balance: newBalance, state: "active" }
+                });
 
-                    await axios.post(`${DATA_SERVICE_URL}/transaction`, {
-                        userId: traderId,
-                        type: transactionType,
-                        amount: Math.abs(cost),
-                        stratName: 'Automatic Charge/Discharge'
-                    });
+                await axios.post(`${DATA_SERVICE_URL}/transaction`, {
+                    userId: traderId,
+                    type: transactionType,
+                    amount: Math.abs(cost),
+                    stratName: 'Automatic Charge/Discharge'
+                });
 
-                    console.log(`Updating battery ${_id}: state=${newState}, stateOfCharge=${finalStateOfCharge}. User ${user.username} new balance: ${newBalance}`);
-                }
+                console.log(`Updating battery ${_id}: state=${newState}, stateOfCharge=${finalStateOfCharge}. User ${user.username} new balance: ${newBalance}`);
+
             } catch (error) {
                 console.error(`Error processing battery ${_id}:`, error.message);
             }

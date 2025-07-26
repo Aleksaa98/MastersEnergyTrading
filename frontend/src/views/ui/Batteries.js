@@ -101,11 +101,12 @@ const Batteries = () => {
   const handleEdit = (battery) => {
     setIsEditing(true);
     setSelectedBatteryId(battery.id);
+    const strategy = strategies.find(s => s.name === battery.tradingStrat);
     setBatteryData({
       capacity: battery.capacity,
       stateOfCharge: battery.stateOfCharge,
       state: battery.state,
-      tradingStrat: battery.tradingStrat,
+      tradingStrat: strategy ? strategy._id : '',
     });
     toggleModal();
   };
