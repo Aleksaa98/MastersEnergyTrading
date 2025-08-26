@@ -2,7 +2,6 @@ import { Col, Row } from "reactstrap";
 import { useSelector } from "react-redux";
 import Feeds from "../components/dashboard/Feeds";
 import PricesGraph from "../components/dashboard/PricesGraph";
-import AveragePriceWidget from "../components/dashboard/AveragePriceWidget";
 import MarketNews from "../components/dashboard/MarketNews";
 import bg1 from "../assets/images/energy/8res.jpg";
 import bg2 from "../assets/images/energy/wind_turbine.jpg";
@@ -29,7 +28,7 @@ const MarketNewsData = [
     link: "https://www.cnbc.com/2023/08/23/the-worlds-largest-floating-wind-farm-is-officially-open.html",
   },
   {
-    image: "https://images.pexels.com/photos/7238749/pexels-photo-7238749.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    image: bg3,
     title: "Energy Prices Drop",
     subtitle: "TechInvest, 1d ago",
     description:
@@ -49,9 +48,6 @@ const MarketNewsData = [
 ];
 
 const Starter = () => {
-  const { actual } = useSelector((state) => state.prices);
-  const averagePrice = actual.length > 0 ? actual.reduce((acc, price) => acc + price, 0) / actual.length : 0;
-
   return (
     <div>
       {/***Top Cards***/}
@@ -62,7 +58,6 @@ const Starter = () => {
         </Col>
         <Col xl="3">
           <Feeds />
-          <AveragePriceWidget averagePrice={averagePrice} />
         </Col>
       </Row>
 

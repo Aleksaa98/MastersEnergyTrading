@@ -1,7 +1,3 @@
-// assets/scss/layout/_particles.scss
-
-@import '../_variables.scss';
-
 @keyframes move-particles {
   0% {
     transform: translateY(0);
@@ -10,6 +6,26 @@
   100% {
     transform: translateY(-100vh);
     opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 0 20px $cyan, 0 0 35px $cyan, 0 0 50px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px lighten($cyan, 15%), 0 0 55px lighten($cyan, 15%), 0 0 80px rgba(255, 255, 255, 0.8);
   }
 }
 
@@ -26,27 +42,52 @@
     position: absolute;
     bottom: 0;
     left: 50%;
-    width: 2px;
-    height: 2px;
+    width: 3px;
+    height: 3px;
     background: $cyan;
     border-radius: 50%;
-    box-shadow: 0 0 10px $cyan, 0 0 20px $cyan, 0 0 30px $cyan;
-    animation: move-particles 10s linear infinite;
-    will-change: transform, opacity;
+    
+    animation-name: move-particles, pulse-border;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+    animation-duration: 10s, 3s;
+    animation-delay: 0s, 0s;
+    will-change: transform, opacity, box-shadow;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: shimmer 3s infinite ease-in-out;
+      will-change: transform, opacity;
+    }
   }
 
-  @for $i from 1 through 50 {
+  @for $i from 1 through 100 {
     .particle:nth-child(#{$i}) {
-      $size: random(3) + 1px;
-      $duration: random(10) + 5s;
-      $delay: random(15) * -1s;
+      $size: random(3) + 2px;
+      $move-duration: random(12) + 8s;
+      $move-delay: random(20) * -1s;
+      $pulse-duration: random(3) + 2s;
+      $pulse-delay: random(5) * -1s;
       $x-position: random(100) * 1vw;
 
       width: $size;
       height: $size;
       left: $x-position;
-      animation-duration: $duration;
-      animation-delay: $delay;
+      
+      animation-duration: $move-duration, $pulse-duration;
+      animation-delay: $move-delay, $pulse-delay;
+
+      &::before {
+        animation-delay: $move-delay * 0.5;
+      }
     }
   }
 }

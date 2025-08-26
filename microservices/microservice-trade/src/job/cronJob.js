@@ -20,6 +20,7 @@ const updateBatteryCharge = async () => {
 
         const buyLowSellHighStrategy = strategies.find(s => s.name === 'Buy Low, Sell High');
         const peakHoursStrategy = strategies.find(s => s.name === 'Charge on Off-Peak, Discharge on-Peak');
+        const socProtectionStrategy = strategies.find(s => s.name === 'State-of-Charge Protection');
 
 
         // First, apply strategy-based state changes
@@ -28,15 +29,15 @@ const updateBatteryCharge = async () => {
                 if (battery.tradingStrat === buyLowSellHighStrategy._id) {
                     const { _id, state, stateOfCharge, capacity } = battery;
                     const tenPercentCapacity = Math.round(capacity * 0.10);
-                    const ninetyFivePercentCapacity = Math.round(capacity * 0.95);
+                    const maxCapacity = Math.round(capacity * 0.90);
                     const priceThreshold = 0.05;
 
                     let newState = state;
 
                     if (currentPrice <= priceThreshold) {
-                        if (stateOfCharge < ninetyFivePercentCapacity && state !== 'charging') {
+                        if (stateOfCharge < maxCapacity && state !== 'charging') {
                             newState = 'charging';
-                        } else if (stateOfCharge >= ninetyFivePercentCapacity) {
+                        } else if (stateOfCharge >= maxCapacity) {
                             newState = 'idle';
                         }
                     } else { // currentPrice > priceThreshold
@@ -61,20 +62,20 @@ const updateBatteryCharge = async () => {
                 if (battery.tradingStrat === peakHoursStrategy._id) {
                     const { _id, state, stateOfCharge, capacity } = battery;
                     const tenPercentCapacity = Math.round(capacity * 0.10);
-                    const ninetyFivePercentCapacity = Math.round(capacity * 0.95);
+                    const maxCapacity = Math.round(capacity * 0.90);
                     const { offPeakStart, offPeakEnd, peakStart, peakEnd } = peakHoursStrategy.parameters;
                     const currentHour = new Date().getHours();
 
                     let newState = state;
 
                     if (currentHour >= offPeakStart && currentHour < offPeakEnd) {
-                        if (stateOfCharge < ninetyFivePercentCapacity && state !== 'charging') {
+                        if (stateOfCharge < maxCapacity && buyLowSellHighStrategy) {
                             newState = 'charging';
-                        } else if (stateOfCharge >= ninetyFivePercentCapacity) {
+                        } else if (stateOfCharge >= maxCapacity) {
                             newState = 'idle';
                         }
                     } else if (currentHour >= peakStart && currentHour < peakEnd) {
-                        if (stateOfCharge > tenPercentCapacity && state !== 'discharging') {
+                        if (stateOfCharge > tenPercentCapacity && buyLowSellHighStrategy) {
                             newState = 'discharging';
                         } else if (stateOfCharge <= tenPercentCapacity) {
                             newState = 'idle';
@@ -92,6 +93,28 @@ const updateBatteryCharge = async () => {
                 }
             }
         }
+        if (socProtectionStrategy) {
+            for (const battery of batteries) {
+                if (battery.tradingStrat === socProtectionStrategy._id) {
+                    const { _id, state, traderId } = battery;
+                    const userResponse = await axios.get(`${DATA_SERVICE_URL}/users/id/${traderId}`);
+                    const user = userResponse.data.data;
+
+                    let newState = state;
+                    
+                    if (newState == 'idle') {
+                        newState = 'charging';
+                    }
+
+                    if (newState !== state) {
+                        await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, { state: newState });
+                        console.log(`SoC Protection updated battery ${_id} from user ${user.username} state to ${newState}.`);
+                        // Update the battery state in our local array to reflect the change for the next step
+                        battery.state = newState;
+                    }
+                }
+            }
+        }
 
         // Second, process actions based on the current state of all batteries
         for (const battery of batteries) {
@@ -102,7 +125,7 @@ const updateBatteryCharge = async () => {
             }
 
             const tenPercentCapacity = Math.round(capacity * 0.10);
-            const ninetyFivePercentCapacity = Math.round(capacity * 0.95);
+            const maxCapacity = Math.round(capacity * 0.90);
 
             try {
                 const userResponse = await axios.get(`${DATA_SERVICE_URL}/users/id/${traderId}`);
@@ -111,7 +134,7 @@ const updateBatteryCharge = async () => {
                 if (user.wallet.state === 'closed' || user.wallet.balance < currentPrice * 10) {
                     if (state !== 'blocked') {
                         await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, { state: 'blocked' });
-                        console.log(`Battery ${_id} blocked due to insufficient funds or inactive wallet.`);
+                        console.log(`Battery ${_id} : User ${user.username} blocked due to insufficient funds or inactive wallet.`);
                     }
                     continue;
                 }
@@ -125,9 +148,13 @@ const updateBatteryCharge = async () => {
                     newStateOfCharge += 10;
                     cost = 10 * currentPrice;
                     transactionType = 'buy';
-                    if (newStateOfCharge >= ninetyFivePercentCapacity) {
-                        newStateOfCharge = ninetyFivePercentCapacity;
-                        newState = 'idle';
+                    if (newStateOfCharge >= maxCapacity) {
+                        newStateOfCharge = maxCapacity;
+                        if(socProtectionStrategy) {
+                            newState = 'discharging';
+                        } else {
+                            newState = 'idle';
+                        }
                     }
                 } else if (state === 'discharging') {
                     newStateOfCharge -= 10;
@@ -135,7 +162,11 @@ const updateBatteryCharge = async () => {
                     transactionType = 'sell';
                     if (newStateOfCharge <= tenPercentCapacity) {
                         newStateOfCharge = tenPercentCapacity;
-                        newState = 'idle';
+                         if(socProtectionStrategy) {
+                            newState = 'charging';
+                        } else {
+                            newState = 'idle';
+                        }
                     }
                 }
 

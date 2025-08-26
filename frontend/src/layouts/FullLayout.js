@@ -18,9 +18,11 @@ const FullLayout = () => {
         <div className="contentArea" style={{ position: "relative", zIndex: 1 }}>
           <ParticleBackground />
           {/********Middle Content**********/}
-          <Container className="p-4" fluid>
-            <Outlet />
-          </Container>
+          <div className="content-inner">
+            <Container className="p-4" fluid>
+              <Outlet />
+            </Container>
+          </div>
         </div>
       </div>
     </main>

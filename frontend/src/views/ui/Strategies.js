@@ -111,14 +111,18 @@ const Strategies = () => {
                 <CardText className="text-muted flex-grow-1">
                   {strategy.description}
                 </CardText>
-                <Button
-                  color="primary"
-                  outline
-                  className="mt-4"
-                  onClick={() => handleSelectStrategy(strategy._id, strategy.name)}
-                >
-                  Select Strategy
-                </Button>
+                {user && (
+                  <Button
+                    color="primary"
+                    outline
+                    className="mt-4"
+                    onClick={() =>
+                      handleSelectStrategy(strategy._id, strategy.name)
+                    }
+                  >
+                    Select Strategy
+                  </Button>
+                )}
               </CardBody>
             </Card>
           </Col>
