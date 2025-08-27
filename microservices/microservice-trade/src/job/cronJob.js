@@ -26,6 +26,7 @@ const updateBatteryCharge = async () => {
         // First, apply strategy-based state changes
         if (buyLowSellHighStrategy) {
             for (const battery of batteries) {
+                if (battery.state === 'blocked') continue;
                 if (battery.tradingStrat === buyLowSellHighStrategy._id) {
                     const { _id, state, stateOfCharge, capacity } = battery;
                     const tenPercentCapacity = Math.round(capacity * 0.10);
@@ -59,6 +60,7 @@ const updateBatteryCharge = async () => {
         }
         if (peakHoursStrategy) {
             for (const battery of batteries) {
+                if (battery.state === 'blocked') continue;
                 if (battery.tradingStrat === peakHoursStrategy._id) {
                     const { _id, state, stateOfCharge, capacity } = battery;
                     const tenPercentCapacity = Math.round(capacity * 0.10);
@@ -95,6 +97,7 @@ const updateBatteryCharge = async () => {
         }
         if (socProtectionStrategy) {
             for (const battery of batteries) {
+                if (battery.state === 'blocked') continue;
                 if (battery.tradingStrat === socProtectionStrategy._id) {
                     const { _id, state, traderId } = battery;
                     const userResponse = await axios.get(`${DATA_SERVICE_URL}/users/id/${traderId}`);

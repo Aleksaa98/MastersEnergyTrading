@@ -1,5 +1,13 @@
 import React from "react";
-import { Card, CardBody, Button, CardTitle, CardSubtitle, Table, Badge } from "reactstrap";
+import {
+  Card,
+  CardBody,
+  Button,
+  CardTitle,
+  CardSubtitle,
+  Table,
+  Badge,
+} from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBatteryEmpty,
@@ -9,6 +17,8 @@ import {
   faPlus,
   faGear,
   faTrash,
+  faBan,
+  faUnlock,
 } from "@fortawesome/free-solid-svg-icons";
 import { BATTERY_STATES } from "../../constants";
 
@@ -38,7 +48,7 @@ const getBadgeColor = (state) => {
   }
 };
 
-const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete }) => {
+const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete, onBlock }) => {
   const handleEdit = (battery) => {
     if (onEdit) {
       onEdit(battery);
@@ -48,6 +58,13 @@ const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete }) => {
   const handleDelete = (batteryId) => {
     if (onDelete) {
       onDelete(batteryId);
+    }
+  };
+
+  const handleBlock = (battery) => {
+    if (onBlock) {
+      console.log(battery)
+      onBlock(battery);
     }
   };
 
@@ -62,9 +79,11 @@ const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete }) => {
                 Overview of battery states
               </CardSubtitle>
             </div>
-            <Button color="success" onClick={onAddBattery}>
-              <FontAwesomeIcon icon={faPlus} /> Add Battery
-            </Button>
+            {onAddBattery && (
+              <Button color="success" onClick={onAddBattery}>
+                <FontAwesomeIcon icon={faPlus} /> Add Battery
+              </Button>
+            )}
           </div>
           <Table className="no-wrap mt-3 align-middle" responsive borderless>
             <thead>
@@ -100,17 +119,39 @@ const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete }) => {
                       </div>
                     </td>
                     <td>{tradingStrat}</td>
-                    <td>
-                      <Button
-                        className="btn"
-                        color="warning"
-                        onClick={() => handleEdit({ id, capacity, stateOfCharge, state, tradingStrat })}
-                      >
-                        <FontAwesomeIcon icon={faGear} />
-                      </Button>
-                      <Button className="btn" color="danger" onClick={() => handleDelete(id)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
+                    <td className="d-flex gap-2">
+                      {onEdit && (
+                        <Button
+                          className="btn"
+                          color="warning"
+                          onClick={() =>
+                            handleEdit({ id, capacity, stateOfCharge, state, tradingStrat })
+                          }
+                        >
+                          <FontAwesomeIcon icon={faGear} />
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          className="btn"
+                          color="danger"
+                          onClick={() => handleDelete(id)}
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </Button>
+                      )}
+                      {onBlock && (
+                        <Button
+                          className="btn"
+                          color={state === BATTERY_STATES.BLOCKED ? "success" : "danger"}
+                          onClick={() => handleBlock({ id, capacity, stateOfCharge, state, tradingStrat })}
+                        >
+                          <FontAwesomeIcon
+                            icon={state === BATTERY_STATES.BLOCKED ? faUnlock : faBan}
+                          />{" "}
+                          {state === BATTERY_STATES.BLOCKED ? "Unblock" : "Block"}
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 );

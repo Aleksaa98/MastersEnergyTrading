@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchUserBatteries,
+  fetchBatteries,
   createBattery,
   updateBattery,
   deleteBattery,
@@ -40,7 +41,7 @@ const Batteries = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const { userBatteries, loading } = useSelector((state) => state.battery);
+  const { userBatteries,batteries, loading } = useSelector((state) => state.battery);
   const [strategies, setStrategies] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -50,7 +51,11 @@ const Batteries = () => {
 
   const refreshBatteries = useCallback(() => {
     if (user) {
-      dispatch(fetchUserBatteries({ userId: user._id, token }));
+      if (user.type === "admin") {
+        dispatch(fetchBatteries(token));
+      } else {
+        dispatch(fetchUserBatteries({ userId: user._id, token }));
+      }
     } else {
       navigate("/login");
     }
@@ -78,6 +83,7 @@ const Batteries = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log("value")
     setBatteryData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -111,6 +117,35 @@ const Batteries = () => {
     toggleModal();
   };
 
+  const handleBlock = (battery) => {
+    const strategy = strategies.find((s) => s.name === battery.tradingStrat);
+
+    // Decide the new state
+    const newState =
+      battery.state === BATTERY_STATES.BLOCKED
+        ? BATTERY_STATES.IDLE
+        : BATTERY_STATES.BLOCKED;
+
+    // Build update data directly
+    const updateData = {
+      capacity: battery.capacity,
+      stateOfCharge: battery.stateOfCharge,
+      state: newState,
+      tradingStrat: strategy ? strategy._id : "",
+    };
+
+    // Dispatch the thunk
+    dispatch(
+      updateBattery({
+        batteryId: battery.id,
+        updateData,
+        token,
+      })
+    ).then(() => {
+      refreshBatteries(); // Refresh after successful update
+    });
+  }
+
   const handleDelete = (batteryId) => {
     dispatch(deleteBattery({ batteryId, token })).then(() => {
       refreshBatteries();
@@ -139,111 +174,126 @@ const Batteries = () => {
     return <p>Loading batteries...</p>;
   }
 
-  const tableData = userBatteries.map((battery) => ({
+  const dataToDisplay = user?.type === "admin" ? batteries : userBatteries;
+
+  const tableData = dataToDisplay.map((battery) => ({
     id: battery._id,
     capacity: battery.capacity,
     stateOfCharge: battery.stateOfCharge,
     state: battery.state,
     tradingStrat:
       strategies.find((s) => s._id === battery.tradingStrat)?.name ||
-      "Not Set",
+      "Not Set", 
+    owner: battery.traderId?.username || "Unknown",
   }));
 
   return (
     <div className="custom-view-wrapper">
       <PageHeader
-        title="Your Batteries"
-        description="Here you can manage your batteries."
+        title={user?.type === "admin" ? "All Batteries" : "Your Batteries"}
+        description={
+          user?.type === "admin"
+            ? "Here you can monitor and block/unblock batteries from all users."
+            : "Here you can manage your batteries."
+        }
       />
-      {userBatteries.length === 0 ? (
+      {dataToDisplay.length === 0 ? (
         <Card>
           <CardBody>
             <div className="d-flex justify-content-between align-items-center">
               <div>
                 <CardTitle tag="h5">Battery Listing</CardTitle>
                 <CardSubtitle className="mb-2 text-muted" tag="h6">
-                  There are no batteries enlisted to you
+                 {user?.type === "admin"
+                    ? "There are no batteries in the system"
+                    : "There are no batteries enlisted to you"}
                 </CardSubtitle>
               </div>
-              <Button color="success" onClick={handleAdd}>
-                <FontAwesomeIcon icon={faPlus} /> Add Battery
-              </Button>
+              {user?.type !== "admin" && (
+                <Button color="success" onClick={handleAdd}>
+                  <FontAwesomeIcon icon={faPlus} /> Add Battery
+                </Button>
+              )}
             </div>
           </CardBody>
         </Card>
       ) : (
         <BatteryTable
           tableData={tableData}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onAddBattery={handleAdd}
+          onEdit={user?.type === "admin" ? null : handleEdit}
+          onDelete={user?.type === "admin" ? null : handleDelete}
+          onAddBattery={user?.type === "admin" ? null : handleAdd}
+          onBlock={ user?.type === "admin"? handleBlock : null }
         />
       )}
 
-      <Modal isOpen={modalOpen} toggle={toggleModal}>
-        <ModalHeader toggle={toggleModal}>
-          {isEditing ? "Edit Battery" : "Add New Battery"}
-        </ModalHeader>
-        <ModalBody>
-          <FormGroup>
-            <Label for="capacity">Capacity</Label>
-            <Input
-              type="number"
-              name="capacity"
-              id="capacity"
-              value={batteryData.capacity}
-              onChange={handleInputChange}
-              disabled={isEditing}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="stateOfCharge">State of Charge</Label>
-            <Input
-              type="number"
-              name="stateOfCharge"
-              id="stateOfCharge"
-              value={batteryData.stateOfCharge}
-              onChange={handleInputChange}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label for="state">State</Label>
-            <Input
-              type="select"
-              name="state"
-              id="state"
-              value={batteryData.state}
-              onChange={handleInputChange}
-            >
-              {Object.values(BATTERY_STATES).map((state) => (
-                <option key={state} value={state}>
-                  {state.charAt(0).toUpperCase() + state.slice(1)}
-                </option>
-              ))}
-            </Input>
-          </FormGroup>
-          <FormGroup>
-            <Label for="tradingStrat">Trading Strategy</Label>
-            <Input
-              type="select"
-              name="tradingStrat"
-              id="tradingStrat"
-              value={batteryData.tradingStrat}
-              onChange={handleInputChange}
-            >
-              {strategies.map((strategy) => (
-                <option key={strategy._id} value={strategy._id}>
-                  {strategy.name}
-                </option>
-              ))}
-            </Input>
-          </FormGroup>
-          <Button color="primary" onClick={handleSubmit}>
-            {isEditing ? "Update Battery" : "Add Battery"}
-          </Button>
-        </ModalBody>
-      </Modal>
+      {user?.type !== "admin" && (
+        <Modal isOpen={modalOpen} toggle={toggleModal}>
+          <ModalHeader toggle={toggleModal}>
+            {isEditing ? "Edit Battery" : "Add New Battery"}
+          </ModalHeader>
+          <ModalBody>
+            <FormGroup>
+              <Label for="capacity">Capacity</Label>
+              <Input
+                type="number"
+                name="capacity"
+                id="capacity"
+                value={batteryData.capacity}
+                onChange={handleInputChange}
+                disabled={isEditing}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label for="stateOfCharge">State of Charge</Label>
+              <Input
+                type="number"
+                name="stateOfCharge"
+                id="stateOfCharge"
+                value={batteryData.stateOfCharge}
+                onChange={handleInputChange}
+              />
+            </FormGroup>
+            <FormGroup>
+              <Label for="state">State</Label>
+              <Input
+                type="select"
+                name="state"
+                id="state"
+                value={batteryData.state}
+                onChange={handleInputChange}
+              >
+                {Object.values(BATTERY_STATES).map((state) => (
+                  <option key={state} value={state}>
+                    {state.charAt(0).toUpperCase() + state.slice(1)}
+                  </option>
+                ))}
+              </Input>
+            </FormGroup>
+            <FormGroup>
+              <Label for="tradingStrat">Trading Strategy</Label>
+              <Input
+                type="select"
+                name="tradingStrat"
+                id="tradingStrat"
+                value={batteryData.tradingStrat}
+                onChange={handleInputChange}
+              >
+                {strategies.map((strategy) => (
+                  <option key={strategy._id} value={strategy._id}>
+                    {strategy.name}
+                  </option>
+                ))}
+              </Input>
+            </FormGroup>
+            <Button color="primary" onClick={handleSubmit}>
+              {isEditing ? "Update Battery" : "Add Battery"}
+            </Button>
+          </ModalBody>
+        </Modal>
+      )}
     </div>
+            
   );
 };
 
