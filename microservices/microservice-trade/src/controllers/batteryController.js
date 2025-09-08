@@ -57,6 +57,7 @@ exports.deleteBattery = async (req, res) => {
 
 // Get batteries for a specific user
 exports.getUserBatteries = async (req, res) => {
+
     const { userId } = req.params;
     try {
         const response = await axios.get(`${DATA_SERVICE_URL}/user/${userId}`);

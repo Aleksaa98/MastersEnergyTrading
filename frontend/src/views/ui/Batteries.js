@@ -68,8 +68,8 @@ const Batteries = () => {
           "http://localhost:3001/api/tradingStrategies"
         );
         const fetchedStrategies = response.data;
-        const noStrategy = fetchedStrategies.find(s => s.name === 'No-Strategy');
-        const otherStrategies = fetchedStrategies.filter(s => s.name !== 'No-Strategy');
+        const noStrategy = fetchedStrategies.find(s => s.name === 'No Strategy');
+        const otherStrategies = fetchedStrategies.filter(s => s.name !== 'No Strategy');
         const orderedStrategies = noStrategy ? [noStrategy, ...otherStrategies] : otherStrategies;
         setStrategies(orderedStrategies);
       } catch (error) {
@@ -96,7 +96,7 @@ const Batteries = () => {
 
   const handleAdd = () => {
     setIsEditing(false);
-    const noStrategy = strategies.find(s => s.name === 'No-Strategy');
+    const noStrategy = strategies.find(s => s.name === 'No Strategy');
     setBatteryData({
       ...initialBatteryData,
       tradingStrat: noStrategy ? noStrategy._id : ''

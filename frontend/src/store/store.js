@@ -4,6 +4,7 @@ import batteryReducer from './batterySlice';
 import userTransactionReducer from './userTransactionSlice';
 import { persistStore, persistReducer } from 'redux-persist';
 import priceReducer from './pricesSlice';
+import userReducer from "./userSlice";
 import storage from 'redux-persist/lib/storage'; 
 import { combineReducers } from 'redux';
 
@@ -16,7 +17,8 @@ const rootReducer = combineReducers({
   auth: authReducer,
   prices: priceReducer,
   transactions: userTransactionReducer,
-  battery: batteryReducer
+  battery: batteryReducer,
+  users: userReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

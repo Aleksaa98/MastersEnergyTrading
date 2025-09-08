@@ -89,7 +89,7 @@ const BatteryTable = ({ tableData, onEdit, onAddBattery, onDelete, onBlock }) =>
             <thead>
               <tr>
                 <th>Percentage</th>
-                <th>Capacity</th>
+                <th>Capacity (kWh)</th>
                 <th>State Of Charge</th>
                 <th>Status</th>
                 <th>Trading Strategy</th>

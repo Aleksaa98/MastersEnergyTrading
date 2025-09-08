@@ -6,6 +6,7 @@ const userController = require('../controllers/userController');
 router.post('/', userController.createUser);
 router.get('/', userController.getAllUsers);
 router.get('/id/:id', userController.getUserById);
+router.patch('/:id/block', userController.toggleUserBlock);
 router.get('/:username', userController.getUserByUsername);
 router.patch('/:username', userController.updateUserByUsername);
 router.delete('/:username', userController.deleteUserByUsername);

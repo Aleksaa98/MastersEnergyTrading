@@ -28,6 +28,19 @@ exports.createUser = async (req, res) => {
     }
 };
 
+exports.toggleUserBlock = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const response = await axios.patch(`${DATA_SERVICE_URL}/users/${id}/block`);
+
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error('Error blocking user:', error);
+        res.status(500).json({ error: 'Error blocking user' });
+    }
+};
+
 exports.loginUser = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -37,6 +50,10 @@ exports.loginUser = async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.type === 'blocked') {
+            return res.status(403).json({ error: 'Your account is blocked. Please contact an admin.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);

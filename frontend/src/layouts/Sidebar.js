@@ -17,6 +17,11 @@ const navigation = [
     icon: "bi bi-battery",
   },
   {
+    title: "Users",
+    href: "/users",
+    icon: "bi bi-people",
+  },
+  {
     title: "Market",
     href: "/market",
     icon: "bi bi-graph-up",
@@ -35,6 +40,20 @@ const Sidebar = () => {
   };
   let location = useLocation();
 
+   const filteredNavigation = navigation.filter((navi) => {
+    if (!user) {
+      // Guest user
+      return navi.title !== "Battery" && navi.title !== "Users";
+    } else if (user.type === "admin") {
+      // Admin user
+      return navi.title !== "Strategies"; // hide strategies
+    } else if (user.type === "customer") {
+      // Regular logged-in user
+      return navi.title !== "Users"; // hide users and strategies
+    }
+    return true;
+  });
+
   return (
     <div>
       <div className="d-flex align-items-center"></div>
@@ -43,7 +62,7 @@ const Sidebar = () => {
         style={{ background: `url(${probg}) no-repeat` }}
       >
         <div className="p-3 d-flex">
-          {user !== null && (
+          {user !== null ? (
             <Link to="/profile">
               <img
                 src={user1}
@@ -52,12 +71,11 @@ const Sidebar = () => {
                 className="rounded-circle hover-effect"
               />
             </Link>
-          )}
-          {user === null && (
+          ) : (
             <Link to="/login">
               <img
                 src={guest}
-                alt="user"
+                alt="guest"
                 width="50"
                 className="rounded-circle hover-effect"
               />
@@ -66,12 +84,12 @@ const Sidebar = () => {
           <Button
             color="white"
             className="ms-auto text-white d-lg-none"
-            onClick={() => showMobilemenu()}
+            onClick={showMobilemenu}
           >
             <i className="bi bi-x"></i>
           </Button>
         </div>
-        {user !== null && (
+        {user && (
           <div className="bg-dark text-white p-2 opacity-75">
             {user.fullName}
           </div>
@@ -79,7 +97,7 @@ const Sidebar = () => {
       </div>
       <div className="p-3 mt-2">
         <Nav vertical className="sidebarNav">
-          {navigation.map((navi, index) => (
+          {filteredNavigation.map((navi, index) => (
             <NavItem key={index} className="sidenav-bg">
               <Link
                 to={navi.href}

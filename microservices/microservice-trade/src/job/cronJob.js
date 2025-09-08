@@ -1,7 +1,7 @@
 const cron = require('node-cron');
 const axios = require('axios');
 
-const DATA_SERVICE_URL = 'http://localhost:3001/api'; // Use environment variable in production
+const DATA_SERVICE_URL = 'http://localhost:3001/api';
 
 const updateBatteryCharge = async () => {
     try {
@@ -29,7 +29,7 @@ const updateBatteryCharge = async () => {
                 if (battery.state === 'blocked') continue;
                 if (battery.tradingStrat === buyLowSellHighStrategy._id) {
                     const { _id, state, stateOfCharge, capacity } = battery;
-                    const tenPercentCapacity = Math.round(capacity * 0.10);
+                    const PercentCapacity = Math.round(capacity * 0.10);
                     const maxCapacity = Math.round(capacity * 0.90);
                     const priceThreshold = 0.05;
 
@@ -42,9 +42,9 @@ const updateBatteryCharge = async () => {
                             newState = 'idle';
                         }
                     } else { // currentPrice > priceThreshold
-                        if (stateOfCharge > tenPercentCapacity && state !== 'discharging') {
+                        if (stateOfCharge > PercentCapacity && state !== 'discharging') {
                             newState = 'discharging';
-                        } else if (stateOfCharge <= tenPercentCapacity) {
+                        } else if (stateOfCharge <= PercentCapacity) {
                             newState = 'idle';
                         }
                     }
@@ -63,7 +63,7 @@ const updateBatteryCharge = async () => {
                 if (battery.state === 'blocked') continue;
                 if (battery.tradingStrat === peakHoursStrategy._id) {
                     const { _id, state, stateOfCharge, capacity } = battery;
-                    const tenPercentCapacity = Math.round(capacity * 0.10);
+                    const PercentCapacity = Math.round(capacity * 0.10);
                     const maxCapacity = Math.round(capacity * 0.90);
                     const { offPeakStart, offPeakEnd, peakStart, peakEnd } = peakHoursStrategy.parameters;
                     const currentHour = new Date().getHours();
@@ -71,15 +71,15 @@ const updateBatteryCharge = async () => {
                     let newState = state;
 
                     if (currentHour >= offPeakStart && currentHour < offPeakEnd) {
-                        if (stateOfCharge < maxCapacity && buyLowSellHighStrategy) {
+                        if (stateOfCharge < maxCapacity) {
                             newState = 'charging';
                         } else if (stateOfCharge >= maxCapacity) {
                             newState = 'idle';
                         }
                     } else if (currentHour >= peakStart && currentHour < peakEnd) {
-                        if (stateOfCharge > tenPercentCapacity && buyLowSellHighStrategy) {
+                        if (stateOfCharge > PercentCapacity) {
                             newState = 'discharging';
-                        } else if (stateOfCharge <= tenPercentCapacity) {
+                        } else if (stateOfCharge <= PercentCapacity) {
                             newState = 'idle';
                         }
                     } else {
@@ -127,14 +127,15 @@ const updateBatteryCharge = async () => {
                 continue; // Skip batteries that are not in an active state
             }
 
-            const tenPercentCapacity = Math.round(capacity * 0.10);
+            const PercentCapacity = Math.round(capacity * 0.05);
+            const minCapacity = Math.round(capacity * 0.10);
             const maxCapacity = Math.round(capacity * 0.90);
 
             try {
                 const userResponse = await axios.get(`${DATA_SERVICE_URL}/users/id/${traderId}`);
                 const user = userResponse.data.data;
 
-                if (user.wallet.state === 'closed' || user.wallet.balance < currentPrice * 10) {
+                if (user.wallet.state === 'closed' || user.wallet.balance < currentPrice * PercentCapacity) {
                     if (state !== 'blocked') {
                         await axios.patch(`${DATA_SERVICE_URL}/batteries/${_id}`, { state: 'blocked' });
                         console.log(`Battery ${_id} : User ${user.username} blocked due to insufficient funds or inactive wallet.`);
@@ -147,9 +148,10 @@ const updateBatteryCharge = async () => {
                 let cost = 0;
                 let transactionType = '';
 
+
                 if (state === 'charging') {
-                    newStateOfCharge += 10;
-                    cost = 10 * currentPrice;
+                    newStateOfCharge += PercentCapacity;
+                    cost = PercentCapacity * currentPrice;
                     transactionType = 'buy';
                     if (newStateOfCharge >= maxCapacity) {
                         newStateOfCharge = maxCapacity;
@@ -160,11 +162,11 @@ const updateBatteryCharge = async () => {
                         }
                     }
                 } else if (state === 'discharging') {
-                    newStateOfCharge -= 10;
-                    cost = -10 * currentPrice;
+                    newStateOfCharge -= PercentCapacity;
+                    cost = -PercentCapacity * currentPrice;
                     transactionType = 'sell';
-                    if (newStateOfCharge <= tenPercentCapacity) {
-                        newStateOfCharge = tenPercentCapacity;
+                    if (newStateOfCharge <= minCapacity) {
+                        newStateOfCharge = minCapacity;
                          if(socProtectionStrategy) {
                             newState = 'charging';
                         } else {

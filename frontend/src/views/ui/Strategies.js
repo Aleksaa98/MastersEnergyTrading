@@ -45,7 +45,7 @@ const Strategies = () => {
           "http://localhost:3001/api/tradingStrategies"
         );
         const filteredStrategies = response.data.filter(
-          (s) => s.name !== "No-Strategy"
+          (s) => s.name !== "No Strategy"
         );
         setStrategies(filteredStrategies);
       } catch (error) {

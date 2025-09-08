@@ -8,6 +8,7 @@ const FullLayout = lazy(() => import("../layouts/FullLayout.js"));
 
 const Starter = lazy(() => import("../views/Starter.js"));
 const Batteries = lazy(() => import("../views/ui/Batteries.js"));
+const User = lazy(() => import("../views/ui/User.js"));
 const Alerts = lazy(() => import("../views/ui/Alerts"));
 const Badges = lazy(() => import("../views/ui/Badges"));
 const Buttons = lazy(() => import("../views/ui/Buttons"));
@@ -32,6 +33,7 @@ const ThemeRoutes = [
     children: [
       { path: "/", element: <Navigate to="/starter" /> },
       { path: "/battery", exact: true, element: <Batteries /> },
+      { path: "/users", exact: true, element: <User /> },
       { path: "/starter", exact: true, element: <Starter /> },
       { path: "/alerts", exact: true, element: <Alerts /> },
       { path: "/badges", exact: true, element: <Badges /> },

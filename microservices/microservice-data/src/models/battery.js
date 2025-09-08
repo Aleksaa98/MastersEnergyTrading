@@ -23,7 +23,7 @@ const batterySchema = new mongoose.Schema({
     },
     tradingStrat: {
         type: String,
-        default: 'No-Strategy'
+        default: 'No Strategy'
     }
 }, {
     timestamps: true
